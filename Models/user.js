@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
-    
     username: {
         type: String,
         required: [true, "username is required"],
@@ -15,43 +14,48 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "password is required"]
     },
-    favorites:{
+    userFavorites:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Movie",
+        ref: "Movies",
         required: true
     },
     downloadsAt: [
         {
         movie:  {
            type: mongoose.Schema.Types.ObjectId,
-           ref: "Movie",
-           required:true,
+           ref: "Movies",
+           required:true
+        },
             download:{
             type:Date,
             default: Date.now,
            required: true
-            }
-           },
+           }
         }
     
     ],
     favouriteStatus:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Movie",
+        ref: "Movies",
         required:true
     },
-    history:{
-         default: Date.now,
-         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
+    history:[
+        {
+            movie:{
+              type:mongoose.Schema.Types.ObjectId,
+              ref:"movies"
+            },
+            watchAt: {
+            type: Date,
+            default: Date.now,
+            required: true
+            }
     }
+]
 },
 {
-    timstamps: true,
-})
+    timestamps: true,
+});
 
 const userModel = mongoose.model("users", userSchema)
 

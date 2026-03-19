@@ -4,17 +4,28 @@ const movieSchema = new mongoose.Schema({
         ref: "User",
         required: [true, "user is required"]
         },
-    title: String,
-    description: String,
+    title: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "title",
+        required: true
+    },
+    description: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "description",
+        required: true
+    },
     category: {
-        type: "string",
-        enum: ["horror", "comedy", "action","drama", "thrill"]
-       
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "categories"
     },
     language: String,
+
     duration: Number,
 
-    cast: String,
+    cast: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "casts"
+    },
     releaseYear: Number,
 
     createdAt: {
