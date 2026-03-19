@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
+    
     username: {
         type: String,
         required: [true, "username is required"],
@@ -19,15 +20,20 @@ const userSchema = new mongoose.Schema({
         ref: "Movie",
         required: true
     },
-    downloads: [
+    downloadsAt: [
         {
         movie:  {
            type: mongoose.Schema.Types.ObjectId,
            ref: "Movie",
-           default: Date.now,
+           required:true,
+            download:{
+            type:Date,
+            default: Date.now,
            required: true
+            }
+           },
         }
-    }
+    
     ],
     favouriteStatus:{
         type: mongoose.Schema.Types.ObjectId,
@@ -42,6 +48,9 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+},
+{
+    timstamps: true,
 })
 
 const userModel = mongoose.model("users", userSchema)

@@ -7,8 +7,9 @@ const movieSchema = new mongoose.Schema({
     title: String,
     description: String,
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "category",
+        type: "string",
+        enum: ["horror", "comedy", "action","drama", "thrill"]
+       
     },
     language: String,
     duration: Number,
@@ -19,8 +20,12 @@ const movieSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    
+},{
+        timestamps:true
     }
-});
+);
 const movieModel = mongoose.model("movies", movieSchema)
 
 export default movieModel;
