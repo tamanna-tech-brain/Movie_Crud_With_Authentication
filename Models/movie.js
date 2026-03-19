@@ -1,31 +1,29 @@
 const movieSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "users",
         required: [true, "user is required"]
         },
     title: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "title",
+        type: String,
         required: true
     },
     description: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "description",
+        type: String,
         required: true
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "categories"
+        type: String,
     },
     language: String,
 
     duration: Number,
 
-    cast: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "casts"
+    cast: [
+        {
+        type: String
     },
+],
     releaseYear: Number,
 
     createdAt: {

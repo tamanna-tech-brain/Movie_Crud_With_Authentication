@@ -3,7 +3,6 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, "username is required"],
-        unique: [true, "username must be unique"]
     },
     email: {
         type: String,
@@ -12,21 +11,24 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "password is required"]
+        required: [true, "password is required"],
     },
-    userFavorites:{
+    userFavorites:[
+    {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Movies",
+        ref: "movies",
         required: true
-    },
-    downloadsAt: [
+    }
+],
+
+    downloads: [
         {
         movie:  {
            type: mongoose.Schema.Types.ObjectId,
-           ref: "Movies",
+           ref: "movies",
            required:true
         },
-            download:{
+            downloadAt:{
             type:Date,
             default: Date.now,
            required: true
@@ -34,11 +36,6 @@ const userSchema = new mongoose.Schema({
         }
     
     ],
-    favouriteStatus:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Movies",
-        required:true
-    },
     history:[
         {
             movie:{
