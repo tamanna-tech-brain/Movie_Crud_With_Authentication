@@ -1,4 +1,9 @@
 const movieSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "user is required"]
+        },
     title: String,
     description: String,
     category: {

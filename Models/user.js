@@ -16,17 +16,28 @@ const userSchema = new mongoose.Schema({
     },
     favorites:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Movie"
+        ref: "Movie",
+        required: true
     },
     downloads: [
         {
         movie:  {
            type: mongoose.Schema.Types.ObjectId,
            ref: "Movie",
-           default: Date.now
+           default: Date.now,
+           required: true
         }
     }
     ],
+    favouriteStatus:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Movie",
+        required:true
+    },
+    history:{
+         default: Date.now,
+         required: true
+    },
     createdAt: {
         type: Date,
         default: Date.now
