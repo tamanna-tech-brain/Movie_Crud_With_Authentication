@@ -12,16 +12,22 @@ const movieSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    category: {
-        type: String,
+    category: [
+        {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: "category",
+       required: true
     },
+],
     language: String,
 
     duration: Number,
 
     cast: [
         {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Actor",
+        required: true
     },
 ],
     releaseYear: Number,
