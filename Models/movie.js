@@ -1,7 +1,7 @@
 const movieSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
+        ref: "users", //kis ke liye 
         required: [true, "user is required"]
         },
     title: {
@@ -15,7 +15,7 @@ const movieSchema = new mongoose.Schema({
     category: [
         {
        type: mongoose.Schema.Types.ObjectId,
-       ref: "category",
+       ref: "categories",
        required: true
     },
 ],
@@ -26,7 +26,7 @@ const movieSchema = new mongoose.Schema({
     cast: [
         {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Actor",
+        ref: "casts",
         required: true
     },
 ],
