@@ -37,9 +37,7 @@ const movieSchema = new mongoose.Schema({
         default: Date.now
     },
     
-},{
-        timestamps:true
-    }
+},
 );
 const movieModel = mongoose.model("movies", movieSchema)
 
