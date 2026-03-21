@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const downloadSchema = new mongoose.Schema({
-  user: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
     required: true

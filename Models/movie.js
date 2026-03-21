@@ -12,10 +12,10 @@ const movieSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    category: [
+    categoryId: [
         {
        type: mongoose.Schema.Types.ObjectId,
-       ref: "categories",
+       ref: "categoriesId",
        required: true
     },
 ],
