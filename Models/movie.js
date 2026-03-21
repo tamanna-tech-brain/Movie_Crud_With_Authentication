@@ -15,7 +15,7 @@ const movieSchema = new mongoose.Schema({
     categoryId: [
         {
        type: mongoose.Schema.Types.ObjectId,
-       ref: "categoriesId",
+       ref: "categories",
        required: true
     },
 ],

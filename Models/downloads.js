@@ -7,7 +7,7 @@ const downloadSchema = new mongoose.Schema({
     required: true
   },
 
-  movie: {
+  movieId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "movies",
     required: true
