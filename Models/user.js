@@ -13,41 +13,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "password is required"],
     },
-    userFavorites:[
-    {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "movies",
-    }
-],
-
-    downloads: [
-        {
-        movie:  {
-           type: mongoose.Schema.Types.ObjectId,
-           ref: "movies",
-           required:true
-        },
-            downloadAt:{
-            type:Date,
-            default: Date.now,
-           required: true
-           }
-        }
-    
-    ],
-    history:[
-        {
-            movie:{
-              type:mongoose.Schema.Types.ObjectId,
-              ref:"movies"
-            },
-            watchAt: {
-            type: Date,
-            default: Date.now,
-            required: true
-            }
-    }
-]
 },
 {
     timestamps: true,
