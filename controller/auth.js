@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import userModel from "../Models/user";
+import userModel from "../Models/user.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 export async function register(req, res) {

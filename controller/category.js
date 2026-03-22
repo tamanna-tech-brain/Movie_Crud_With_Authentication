@@ -1,25 +1,19 @@
-import movieModel from "../Models/movie.js";
+import category from "../Models/category"
 
 export async function createMovie(req, res) {
   try {
-    const { userId, title, description, categoryId, language, duration, cast, releaseYear, createdAt} = req.params;
-    const movie = await movie.create( 
-        userId,
-        title,
+    const { name, description} = req.params;
+    const movie = await movie.create(
+        name,
         description,
-        categoryId,
-        language,
-        duration,
-        cast,
-        releaseYear,
-        createdAt);
-    if (!userId || !title || !description|| !categoryId  || !language || !duration || !cast || !releaseYear|| !createdAt) {
-      throw new Error("not found user id");
+        );
+    if (!name|| !description) {
+      throw new Error("not found category");
     }
     
     res.status(201).json({
       success: true,
-      message: "Address created successfully"
+      message: " category created successfully"
     });
     
 
@@ -31,16 +25,16 @@ export async function createMovie(req, res) {
   }
 }
 
-export async function getMovies(req, res) {
+export async function getCategory(req, res) {
   try {
-    const movies = await Movie.find();
-    if (!movies) {
+    const categories = await category.find();
+    if (!categories) {
       throw new Error("not found");
     }
     
     res.status(201).json({
       success: true,
-      message: "Movies found successfully"
+      message: "Categories found successfully"
     });
     
 
@@ -52,17 +46,17 @@ export async function getMovies(req, res) {
   }
 }
 
-export async function getMoviesById(req, res) {
+export async function getCategoryById(req, res) {
   try {
     const { id } = req.params;
-    const movie = await Movie.findById(id);
-    if (!movie) {
+    const category= await category.findById(id);
+    if (!category) {
       throw new Error("not found ");
     }
     
     res.status(201).json({
       success: true,
-      message: "Movie is found successfully"
+      message: "category found successfully"
     });
     
 
@@ -74,17 +68,17 @@ export async function getMoviesById(req, res) {
   }
 }
 
-export async function updateMovieById(req, res) {
+export async function updateCategoryById(req, res) {
   try {
     const { id } = req.params;
-    const updateMovie = await Movie.findByIdAndUpdate(id, req.body, {new:true});
-    if (!updateMovie) {
-      throw new Error("not found movie id");
+    const updateCategory = await category.findByIdAndUpdate(id, req.body, {new:true});
+    if (!updateCategory) {
+      throw new Error("not found category id");
     }
     
     res.status(201).json({
       success: true,
-      message: " updated successsfully"
+      message: " updated successfully"
     });
     
 
@@ -96,11 +90,11 @@ export async function updateMovieById(req, res) {
   }
 }
 
-export async function deleteMovieById(req, res) {
+export async function deleteCategoryById(req, res) {
   try {
     const { id } = req.params;
-    const movieDelete = await user.findByIdAndDelete(id);
-    if (!movieDelete) {
+    const categoryDelete = await category.findByIdAndDelete(id);
+    if (!categoryDelete) {
       throw new Error("movie id not found" );
     }
     
@@ -117,4 +111,3 @@ export async function deleteMovieById(req, res) {
     });
   }
 }
-
