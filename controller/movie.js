@@ -2,8 +2,12 @@ import movieModel from "../Models/movie.js";
 
 export async function createMovie(req, res) {
   try {
-    const { userId, title, description, categoryId, language, duration, cast, releaseYear, createdAt} = req.params;
-    const movie = await movie.create( 
+    const { userId, title, description, categoryId, language, duration, cast, releaseYear} = req.body;
+    
+    if (!userId || !title || !description|| !categoryId  || !language || !duration || !cast || !releaseYear) {
+      throw new Error("requried fields missings");
+    }
+    const movie = await movieModel.create({
         userId,
         title,
         description,
@@ -11,14 +15,12 @@ export async function createMovie(req, res) {
         language,
         duration,
         cast,
-        releaseYear,
-        createdAt);
-    if (!userId || !title || !description|| !categoryId  || !language || !duration || !cast || !releaseYear|| !createdAt) {
-      throw new Error("not found user id");
-    }
+        releaseYear
+      });
     
     res.status(201).json({
       success: true,
+      data: movie,
       message: "Address created successfully"
     });
     
@@ -33,7 +35,7 @@ export async function createMovie(req, res) {
 
 export async function getMovies(req, res) {
   try {
-    const movies = await Movie.find();
+    const movies = await movieModel.find();
     if (!movies) {
       throw new Error("not found");
     }
@@ -55,7 +57,7 @@ export async function getMovies(req, res) {
 export async function getMoviesById(req, res) {
   try {
     const { id } = req.params;
-    const movie = await Movie.findById(id);
+    const movie = await movieModel.findById(id);
     if (!movie) {
       throw new Error("not found ");
     }
@@ -77,7 +79,7 @@ export async function getMoviesById(req, res) {
 export async function updateMovieById(req, res) {
   try {
     const { id } = req.params;
-    const updateMovie = await Movie.findByIdAndUpdate(id, req.body, {new:true});
+    const updateMovie = await movieModel.findByIdAndUpdate(id, req.body, {new:true});
     if (!updateMovie) {
       throw new Error("not found movie id");
     }
@@ -99,7 +101,7 @@ export async function updateMovieById(req, res) {
 export async function deleteMovieById(req, res) {
   try {
     const { id } = req.params;
-    const movieDelete = await user.findByIdAndDelete(id);
+    const movieDelete = await movieModel.findByIdAndDelete(id);
     if (!movieDelete) {
       throw new Error("movie id not found" );
     }

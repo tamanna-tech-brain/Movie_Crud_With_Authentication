@@ -1,7 +1,8 @@
+import mongoose from "mongoose";
 const movieSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "users", //kis ke liye 
+        ref: "users",
         required: [true, "user is required"]
         },
     title: {
@@ -31,13 +32,11 @@ const movieSchema = new mongoose.Schema({
     },
 ],
     releaseYear: Number,
-
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
     
 },
+{
+        timestamps:true
+    },
 );
 const movieModel = mongoose.model("movies", movieSchema)
 

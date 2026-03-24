@@ -1,12 +1,11 @@
-import category from "../Models/category"
+import category from "../Models/category.js"
 
-export async function createMovie(req, res) {
+export async function createCategory(req, res) {
   try {
-    const { name, description} = req.params;
-    const movie = await movie.create(
-        name,
+    const { name, description} = req.body;
+    const newCategory = await category.create({        name,
         description,
-        );
+      });
     if (!name|| !description) {
       throw new Error("not found category");
     }

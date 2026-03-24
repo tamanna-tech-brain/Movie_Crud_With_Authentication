@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
 import mongoose from "mongoose";
 import userModel from "../Models/user.js";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import bcrypt from "bcrypt"; 
 export async function register(req, res) {
   try {
     const { username, email, password } = req.body;
@@ -17,7 +19,7 @@ export async function register(req, res) {
     });
     let accessToken = jwt.sign({
     id: user._id,
-    }, config.JWT_SECRET,
+    }, process.env.JWT_SECRET,
     {
     expiresIn: "15m"
     }
@@ -56,12 +58,15 @@ export async function login(req, res) {
     if (!user) {
       throw new Error("User not found");
     }
-    if (user.password !== password) {
-      throw new Error("Invalid password");
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+ 
+    if (!isMatch) {
+     throw new Error("Invalid password");
+    } 
+    
     let accessToken = jwt.sign({
     id: user._id,
-    }, config.JWT_SECRET,
+    }, process.env.JWT_SECRET ,
     {
     expiresIn: "15m"
     }
@@ -75,7 +80,7 @@ export async function login(req, res) {
     
     res.status(201).json({
       success: true,
-      message: "User logined In successfully"
+      message: "User logged In successfully"
     });
 
   } catch (error) {
