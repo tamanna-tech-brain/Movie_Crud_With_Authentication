@@ -10,7 +10,7 @@ const downloadSchema = new mongoose.Schema({
   movieId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "movies",
-    required: true
+    required: true,
   },
 
   downloadedAt: {
@@ -21,5 +21,10 @@ const downloadSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+downloadSchema.index(
+  {  movieId: 1, categoryId: 1 },
+  { unique: true }
+);
 
 export default mongoose.model("downloads", downloadSchema);

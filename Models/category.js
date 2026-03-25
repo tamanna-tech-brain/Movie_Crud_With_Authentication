@@ -4,7 +4,9 @@ const categorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    lowercase:true,
+    set: (value) => value.toLowerCase() 
   },
 
   description: {
@@ -14,5 +16,6 @@ const categorySchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
 
 export default mongoose.model("categories", categorySchema);

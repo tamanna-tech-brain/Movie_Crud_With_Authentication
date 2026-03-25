@@ -3,7 +3,10 @@ import category from "../Models/category.js"
 export async function createCategory(req, res) {
   try {
     const { name, description} = req.body;
-    const newCategory = await category.create({        name,
+    name = name.toLowerCase();
+
+    const newCategory = await category.create({  
+       name,
         description,
       });
     if (!name|| !description) {
@@ -70,6 +73,9 @@ export async function getCategoryById(req, res) {
 export async function updateCategoryById(req, res) {
   try {
     const { id } = req.params;
+     let { name, description } = req.body;
+
+    if (name) name = name.toLowerCase();
     const updateCategory = await category.findByIdAndUpdate(id, req.body, {new:true});
     if (!updateCategory) {
       throw new Error("not found category id");

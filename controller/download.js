@@ -15,6 +15,10 @@ export const downloadMovie = async (req, res) => {
       userId,
       movieId
     });
+
+     if (existing) {
+      return res.json({ message: "Already downloaded" });
+    }
     return res.json({
       success: true,
       data: download,

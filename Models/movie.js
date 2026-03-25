@@ -7,7 +7,8 @@ const movieSchema = new mongoose.Schema({
         },
     title: {
         type: String,
-        required: true
+        required: true,
+        lowercase:true
     },
     description: {
         type: String,
@@ -17,7 +18,8 @@ const movieSchema = new mongoose.Schema({
         {
        type: mongoose.Schema.Types.ObjectId,
        ref: "categories",
-       required: true
+       required: true,
+       unique:true,
     },
 ],
     language: String,

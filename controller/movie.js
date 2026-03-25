@@ -3,6 +3,7 @@ import movieModel from "../Models/movie.js";
 export async function createMovie(req, res) {
   try {
     const { userId, title, description, categoryId, language, duration, cast, releaseYear} = req.body;
+    title = title.toLowerCase();
     
     if (!userId || !title || !description|| !categoryId  || !language || !duration || !cast || !releaseYear) {
       throw new Error("requried fields missings");
