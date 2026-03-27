@@ -16,5 +16,9 @@ const userFavoriteSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+userFavoriteSchema.index(
+  {  movieId: 1 },
+  { unique: true }
+);
 
 export default mongoose.model("userFavorites", userFavoriteSchema);

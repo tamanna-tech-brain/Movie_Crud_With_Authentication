@@ -8,7 +8,14 @@ const movieSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        lowercase:true
+        unique: true,
+        lowercase:true,
+        set: (v) => {
+    if (v !== v.toLowerCase()) {
+      throw new Error("Title must be lowercase");
+    }
+    return v;
+  }
     },
     description: {
         type: String,
@@ -19,7 +26,6 @@ const movieSchema = new mongoose.Schema({
        type: mongoose.Schema.Types.ObjectId,
        ref: "categories",
        required: true,
-       unique:true,
     },
 ],
     language: String,

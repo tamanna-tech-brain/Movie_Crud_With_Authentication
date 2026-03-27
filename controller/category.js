@@ -3,11 +3,16 @@ import category from "../Models/category.js"
 export async function createCategory(req, res) {
   try {
     const { name, description} = req.body;
-    name = name.toLowerCase();
+  if (!req.body) {
+  throw new Error("Request body missing");
+}
 
+if (name !== name.toLowerCase()) {
+  throw new Error("Category must be lowercase");
+}
     const newCategory = await category.create({  
-       name,
-        description,
+      name,
+      description,
       });
     if (!name|| !description) {
       throw new Error("not found category");
@@ -25,6 +30,12 @@ export async function createCategory(req, res) {
       message: error.message
     });
   }
+  if (error.code === 11000) {
+  return res.status(400).json({
+    success: false,
+    message: "Category already exists"
+  });
+}
 }
 
 export async function getCategory(req, res) {
@@ -36,6 +47,7 @@ export async function getCategory(req, res) {
     
     res.status(201).json({
       success: true,
+      data: categories,
       message: "Categories found successfully"
     });
     
@@ -51,13 +63,14 @@ export async function getCategory(req, res) {
 export async function getCategoryById(req, res) {
   try {
     const { id } = req.params;
-    const category= await category.findById(id);
-    if (!category) {
+    const categoryData= await category.findById(id);
+    if (!categoryData) {
       throw new Error("not found ");
     }
     
     res.status(201).json({
       success: true,
+      data: categoryData,
       message: "category found successfully"
     });
     
@@ -73,16 +86,19 @@ export async function getCategoryById(req, res) {
 export async function updateCategoryById(req, res) {
   try {
     const { id } = req.params;
-     let { name, description } = req.body;
+    if (!req.body) {
+  throw new Error("Request body missing");
+}
+    const { name, description } = req.body;    
 
-    if (name) name = name.toLowerCase();
-    const updateCategory = await category.findByIdAndUpdate(id, req.body, {new:true});
+    const updateCategory = await category.findByIdAndUpdate(id, { name, description}, {new:true});
     if (!updateCategory) {
       throw new Error("not found category id");
     }
     
-    res.status(201).json({
+    res.status(200).json({
       success: true,
+      data : updateCategory,
       message: " updated successfully"
     });
     
@@ -100,7 +116,7 @@ export async function deleteCategoryById(req, res) {
     const { id } = req.params;
     const categoryDelete = await category.findByIdAndDelete(id);
     if (!categoryDelete) {
-      throw new Error("movie id not found" );
+      throw new Error("category id not found" );
     }
     
     res.status(201).json({

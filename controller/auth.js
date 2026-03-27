@@ -7,11 +7,13 @@ import bcrypt from "bcrypt";
 export async function register(req, res) {
   try {
     const { username, email, password } = req.body;
-    email = email.toLowerCase();
 
     if (!username || !email || !password) {
       throw new Error("All fields are required");
     }
+    if (email !== email.toLowerCase()) {
+  throw new Error("Email must be in lowercase");
+}
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await userModel.create({
       username,

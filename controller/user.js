@@ -25,7 +25,7 @@ export async function getProfileById(req, res) {
 export async function updateProfileById(req, res) {
   try {
     const { id } = req.params;
-    const updateUser = await user.findByIdAndUpdate(id, req.body, {new:true});
+    const updateUser = await userModel.findByIdAndUpdate(id, req.body, {new:true});
     if (!updateUser) {
       throw new Error("not found user id");
     }

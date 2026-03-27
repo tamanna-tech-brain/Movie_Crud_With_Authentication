@@ -11,14 +11,17 @@ export const downloadMovie = async (req, res) => {
     if (!movie) {
       return res.status(404).json({ message: "Movie not found" });
     }
-   const download =  await downloadModel.create({
-      userId,
-      movieId
-    });
-
+  
+    const existing = await downloadModel.findOne({ userId, movieId });
      if (existing) {
       return res.json({ message: "Already downloaded" });
     }
+
+    const download =  await downloadModel.create({
+      userId,
+      movieId
+    }); 
+    
     return res.json({
       success: true,
       data: download,
