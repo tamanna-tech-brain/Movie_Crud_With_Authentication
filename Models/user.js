@@ -9,12 +9,6 @@ const userSchema = new mongoose.Schema({
         required: [true, "email is required"],
         unique: [true, "email must be unique"],
         lowercase:true,
-         set: (v) => {
-    if (v !== v.toLowerCase()) {
-      throw new Error("Email must be lowercase");
-    }
-    return v;
-  }
     },
     password: {
         type: String,
@@ -25,6 +19,7 @@ const userSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-const userModel = mongoose.model("users", userSchema)
+const User =
+  mongoose.models.user || mongoose.model("users", userSchema);
 
-export default userModel;
+export default User;

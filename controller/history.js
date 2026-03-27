@@ -1,5 +1,5 @@
-import movieModel from "../Models/movie.js";
-import historyModel from "../Models/history.js"
+import historymodel from "../models/history.js"
+import moviemodel from "../models/movie.js"
 export const watchMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
@@ -7,11 +7,11 @@ export const watchMovie = async (req, res) => {
     console.log("movieId:", movieId);
     console.log("userId:", req.body.userId); 
 
-    const movie = await movieModel.findById(movieId);
+    const movie = await moviemodel.findById(movieId);
     if (!movie) {
       return res.status(404).json({ message: "Movie not found" });
     }
-    const history = await historyModel.create({
+    const history = await historymodel.create({
     userId: req.body.userId,
     movieId
 });
@@ -31,7 +31,7 @@ export const getHistory = async (req, res) => {
   try {
      const { userId } = req.params;
 
-    const history = await historyModel.find({ userId}).populate("movieId")
+    const history = await historymodel.find({ userId}).populate("movieId")
     return res.json({
       success: true,
       data: history

@@ -1,18 +1,16 @@
-import movieModel from "../Models/movie.js";
+import moviemodel from "../models/movie.js";
 
 export async function createMovie(req, res) {
   try {
     const { userId, title, description, categoryId, language, duration, cast, releaseYear} = req.body;
     
-    if (title !== title.toLowerCase()) {
-  throw new Error("Title must be in lowercase");
-}
     if (!userId || !title || !description|| !categoryId  || !language || !duration || !cast || !releaseYear) {
       throw new Error("requried fields missings");
     }
-    const movie = await movieModel.create({
+    const normalizedTitle = title.toLowerCase();
+    const movie = await moviemodel.create({
         userId,
-        title,
+        title:normalizedTitle,
         description,
         categoryId,
         language,
@@ -38,7 +36,7 @@ export async function createMovie(req, res) {
 
 export async function getMovies(req, res) {
   try {
-    const movies = await movieModel.find();
+    const movies = await moviemodel.find();
     if (!movies) {
       throw new Error("not found");
     }
@@ -60,7 +58,7 @@ export async function getMovies(req, res) {
 export async function getMoviesById(req, res) {
   try {
     const { id } = req.params;
-    const movie = await movieModel.findById(id);
+    const movie = await moviemodel.findById(id);
     if (!movie) {
       throw new Error("not found ");
     }
@@ -82,7 +80,7 @@ export async function getMoviesById(req, res) {
 export async function updateMovieById(req, res) {
   try {
     const { id } = req.params;
-    const updateMovie = await movieModel.findByIdAndUpdate(id, req.body, {new:true});
+    const updateMovie = await moviemodel.findByIdAndUpdate(id, req.body, {new:true});
     if (!updateMovie) {
       throw new Error("not found movie id");
     }
@@ -104,7 +102,7 @@ export async function updateMovieById(req, res) {
 export async function deleteMovieById(req, res) {
   try {
     const { id } = req.params;
-    const movieDelete = await movieModel.findByIdAndDelete(id);
+    const movieDelete = await moviemodel.findByIdAndDelete(id);
     if (!movieDelete) {
       throw new Error("movie id not found" );
     }

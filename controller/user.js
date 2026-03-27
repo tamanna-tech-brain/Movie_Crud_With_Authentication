@@ -1,9 +1,9 @@
-import userModel from "../Models/user.js";
+import usermodel from "../models/user.js";
 
 export async function getProfileById(req, res) {
   try {
     const { id } = req.params;
-    const user = await userModel.findById(id);
+    const user = await usermodel.findById(id);
     if (!user) {
       throw new Error("not found");
     }
@@ -25,7 +25,7 @@ export async function getProfileById(req, res) {
 export async function updateProfileById(req, res) {
   try {
     const { id } = req.params;
-    const updateUser = await userModel.findByIdAndUpdate(id, req.body, {new:true});
+    const updateUser = await usermodel.findByIdAndUpdate(id, req.body, {new:true});
     if (!updateUser) {
       throw new Error("not found user id");
     }

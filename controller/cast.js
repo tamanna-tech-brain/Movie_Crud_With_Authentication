@@ -1,4 +1,4 @@
-import castModel from "../Models/cast.js";
+import castmodel from "../models/cast.js"
 
 export async function createCast(req, res) {
   try {
@@ -8,7 +8,7 @@ export async function createCast(req, res) {
       throw new Error("Name is required");
     }
 
-    const cast = await castModel.create({
+    const cast = await castmodel.create({
       name,
       age,
       bio,
@@ -29,7 +29,7 @@ export async function createCast(req, res) {
 }
 export async function getCasts(req, res) {
   try {
-    const casts = await castModel.find();
+    const casts = await castmodel.find();
 
     res.json({
       success: true,
@@ -48,7 +48,7 @@ export async function getCastById(req, res) {
   try {
     const { id } = req.params;
 
-    const cast = await castModel.findById(id);
+    const cast = await castmodel.findById(id);
     if (!cast) {
       throw new Error("Cast not found");
     }
@@ -70,7 +70,7 @@ export async function updateCastById(req, res) {
   try {
     const { id } = req.params;
 
-    const updated = await castModel.findByIdAndUpdate(id, req.body, { new: true });
+    const updated = await castmodel.findByIdAndUpdate(id, req.body, { new: true });
 
     res.json({
       success: true,
@@ -89,7 +89,7 @@ export async function deleteCastById(req, res) {
   try {
     const { id } = req.params;
 
-    await castModel.findByIdAndDelete(id);
+    await castmodel.findByIdAndDelete(id);
 
     res.json({
       success: true,

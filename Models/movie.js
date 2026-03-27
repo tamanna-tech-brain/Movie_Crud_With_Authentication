@@ -10,12 +10,6 @@ const movieSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase:true,
-        set: (v) => {
-    if (v !== v.toLowerCase()) {
-      throw new Error("Title must be lowercase");
-    }
-    return v;
-  }
     },
     description: {
         type: String,
@@ -46,6 +40,6 @@ const movieSchema = new mongoose.Schema({
         timestamps:true
     },
 );
-const movieModel = mongoose.model("movies", movieSchema)
+const moviemodel = mongoose.model("movies", movieSchema)
 
-export default movieModel;
+export default moviemodel;

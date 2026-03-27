@@ -16,4 +16,4 @@ const castSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export default mongoose.model("casts", castSchema);
+export default mongoose.model("cast", castSchema);

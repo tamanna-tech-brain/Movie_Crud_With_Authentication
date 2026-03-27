@@ -1,7 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
-import mongoose from "mongoose";
-import userModel from "../Models/user.js";
+import usermodel from "../models/user.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"; 
 export async function register(req, res) {
@@ -11,13 +8,11 @@ export async function register(req, res) {
     if (!username || !email || !password) {
       throw new Error("All fields are required");
     }
-    if (email !== email.toLowerCase()) {
-  throw new Error("Email must be in lowercase");
-}
+    const normalizedEmail = email.toLowerCase();
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await userModel.create({
+    const user = await usermodel.create({
       username,
-      email,
+      email:normalizedEmail,
       password: hashedPassword
     });
     let accessToken = jwt.sign({
@@ -56,8 +51,8 @@ export async function login(req, res) {
     if (!email || !password) {
       throw new Error("All fields are required");
     }
-
-    const user = await userModel.findOne({ email });
+   const normalizedEmail = email.toLowerCase();
+    const user = await usermodel.findOne({ email: normalizedEmail });
     if (!user) {
       throw new Error("User not found");
     }

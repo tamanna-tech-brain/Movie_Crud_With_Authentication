@@ -1,5 +1,4 @@
-import category from "../Models/category.js"
-import  categorySchema  from "../validators/categoryvalidator.js";
+import categorymodel from "../models/category.js"
 
 export async function createCategory(req, res) {
   try {
@@ -8,10 +7,7 @@ export async function createCategory(req, res) {
   throw new Error("Request body missing");
 }
 
-if (name !== name.toLowerCase()) {
-  throw new Error("Category must be lowercase");
-}
-    const newCategory = await category.create({  
+    const newCategory = await categorymodel.create({  
       name,
       description,
       });
@@ -41,7 +37,7 @@ if (name !== name.toLowerCase()) {
 
 export async function getCategory(req, res) {
   try {
-    const categories = await category.find();
+    const categories = await categorymodel.find();
     if (!categories) {
       throw new Error("not found");
     }
@@ -64,7 +60,7 @@ export async function getCategory(req, res) {
 export async function getCategoryById(req, res) {
   try {
     const { id } = req.params;
-    const categoryData= await category.findById(id);
+    const categoryData= await categorymodel.findById(id);
     if (!categoryData) {
       throw new Error("not found ");
     }
@@ -86,16 +82,13 @@ export async function getCategoryById(req, res) {
 
 export async function updateCategoryById(req, res) {
   try {
-    if (error) {
-      throw new Error(error.details[0].message);
-    }
     const { id } = req.params;
     if (!req.body) {
   throw new Error("Request body missing");
 }
     const { name, description } = req.body;    
 
-    const updateCategory = await category.findByIdAndUpdate(id, { name, description}, {new:true});
+    const updateCategory = await categorymodel.findByIdAndUpdate(id, { name, description}, {new:true});
     if (!updateCategory) {
       throw new Error("not found category id");
     }
@@ -118,7 +111,7 @@ export async function updateCategoryById(req, res) {
 export async function deleteCategoryById(req, res) {
   try {
     const { id } = req.params;
-    const categoryDelete = await category.findByIdAndDelete(id);
+    const categoryDelete = await categorymodel.findByIdAndDelete(id);
     if (!categoryDelete) {
       throw new Error("category id not found" );
     }
