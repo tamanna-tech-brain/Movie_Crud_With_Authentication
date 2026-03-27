@@ -1,4 +1,5 @@
 import category from "../Models/category.js"
+import  categorySchema  from "../validators/categoryvalidator.js";
 
 export async function createCategory(req, res) {
   try {
@@ -85,6 +86,9 @@ export async function getCategoryById(req, res) {
 
 export async function updateCategoryById(req, res) {
   try {
+    if (error) {
+      throw new Error(error.details[0].message);
+    }
     const { id } = req.params;
     if (!req.body) {
   throw new Error("Request body missing");
