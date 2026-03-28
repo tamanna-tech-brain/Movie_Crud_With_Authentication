@@ -31,7 +31,7 @@ export async function register(req, res) {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
 });
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: user,
       message: "User registered successfully"
@@ -69,7 +69,7 @@ export async function login(req, res) {
         maxAge: 7 * 24 * 60 * 60 * 1000
 })
     
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: user,
       message: "User logged In successfully"

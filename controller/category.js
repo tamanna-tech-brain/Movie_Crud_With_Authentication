@@ -108,7 +108,7 @@ export async function deleteCategoryById(req, res) {
         message: "Category not found"
       });
     }
-    res.status(201).json({
+     return res.status(201).json({
       success: true,
       data : categoryDelete,
       message: "Deleted successfully"
