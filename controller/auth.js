@@ -49,6 +49,12 @@ export async function login(req, res) {
     const {  email, password } = req.body;
     const normalizedEmail = email.toLowerCase();
     const user = await usermodel.findOne({ email: normalizedEmail });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password"
+      });
+    }
     let accessToken = jwt.sign({
     id: user._id,
     }, process.env.JWT_SECRET ,

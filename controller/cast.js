@@ -63,7 +63,12 @@ export async function updateCastById(req, res) {
     const { id } = req.params;
 
     const updated = await castmodel.findByIdAndUpdate(id, req.body, { new: true });
-
+     if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Cast not found"
+      });
+    }
     res.json({
       success: true,
       data: updated
@@ -82,10 +87,15 @@ export async function deleteCastById(req, res) {
     const { id } = req.params;
 
     await castmodel.findByIdAndDelete(id);
-
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Cast not found"
+      });
+    }
     res.json({
       success: true,
-      data : castmodel,
+      data : deleted,
       message: "Cast deleted successfully"
     });
 

@@ -3,7 +3,14 @@ import moviemodel from "../models/movie.js"
 export const watchMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
+    const { userId } = req.body;
     const movie = await moviemodel.findById(movieId);
+     if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
     const history = await historymodel.create({
     userId: req.body.userId,
     movieId

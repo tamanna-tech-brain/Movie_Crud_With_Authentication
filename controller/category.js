@@ -13,8 +13,6 @@ export async function createCategory(req, res) {
       data: newCategory,
       message: " category created successfully"
     });
-    
-
   }
   catch (error) {
     if (error.code === 11000) {
@@ -52,7 +50,13 @@ export async function getCategoryById(req, res) {
   try {
     const { id } = req.params;
     const categoryData= await categorymodel.findById(id);
-    res.status(201).json({
+    if (!categoryData) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+    }
+    res.status(200).json({
       success: true,
       data: categoryData,
       message: "category found successfully"
@@ -72,7 +76,12 @@ export async function updateCategoryById(req, res) {
     const { id } = req.params;   
 
     const updateCategory = await categorymodel.findByIdAndUpdate(id, req.body, {new:true});
-    
+     if (!updateCategory) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+    }
     res.status(200).json({
       success: true,
       data : updateCategory,
@@ -93,7 +102,12 @@ export async function deleteCategoryById(req, res) {
     const { id } = req.params;
     const categoryDelete = await categorymodel.findByIdAndDelete(id);
    
-    
+    if (!categoryDelete) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+    }
     res.status(201).json({
       success: true,
       data : categoryDelete,

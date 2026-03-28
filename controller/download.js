@@ -5,7 +5,14 @@ export const downloadMovie = async (req, res) => {
     const { movieId } = req.params;
     const { userId } = req.body;
     const movie = await moviemodel.findById(movieId);
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
     const existing = await downloadmodel.findOne({ userId, movieId });
+
      if (existing) {
       return res.json({ message: "Already downloaded" });
     }

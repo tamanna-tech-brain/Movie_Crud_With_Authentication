@@ -52,6 +52,12 @@ export async function getMoviesById(req, res) {
   try {
     const { id } = req.params;
     const movie = await moviemodel.findById(id);
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
     res.status(200).json({
       success: true,
       data: movie,
@@ -76,7 +82,12 @@ export async function updateMovieById(req, res) {
       data: updateMovie,
       message: " updated successsfully"
     });
-    
+    if (!updatedMovie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
 
   } catch (error) {
     res.status(400).json({
@@ -90,6 +101,12 @@ export async function deleteMovieById(req, res) {
   try {
     const { id } = req.params;
     const movieDelete = await moviemodel.findByIdAndDelete(id);
+    if (!movieDelete) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
     res.status(201).json({
       success: true,
       data : movieDelete,
