@@ -88,12 +88,7 @@ export async function updateMovieById(req, res) {
       data: updateMovie,
       message: " updated successsfully"
     });
-    if (!updateMovie) {
-      return res.status(404).json({
-        success: false,
-        message: "Movie not found"
-      });
-    }
+    
 
   } catch (error) {
     res.status(400).json({
