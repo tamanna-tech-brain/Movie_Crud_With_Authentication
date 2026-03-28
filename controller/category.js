@@ -29,12 +29,28 @@ export async function createCategory(req, res) {
 }
 
 export async function getCategory(req, res) {
-  try {
-    const categories = await categorymodel.find();
+  try { 
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2;
+
+    const totalCategories = await categorymodel.countDocuments();
+    const totalPages = Math.ceil(totalCategories / limit);
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    const categories = await categorymodel
+      .find()
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+
     res.status(201).json({
       success: true,
       data: categories,
-      message: "Categories found successfully"
+      message: "Categories found successfully",
+      page,
+      nextPage,
+      totalPages,
+      totalCategories
     });
     
 

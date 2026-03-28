@@ -24,17 +24,24 @@ export async function createCast(req, res) {
 }
 export async function getCasts(req, res) {
   try {
-    const casts = await castmodel.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2;
+    const totalcasts = await castmodel.countDocuments()
+    const totalPages = Math.ceil(totalcasts / limit);
+    const nextPage = page < totalPages ? page + 1: null;
 
-    res.json({
+    const casts = await castmodel.find().skip((page -1 ) * limit).limit();
+
+    return res.status(200).json({
       success: true,
-      data: casts
+      data: casts , page,
+      nextPage , totalPages, totalcasts
     });
 
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 }

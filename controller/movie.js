@@ -32,11 +32,25 @@ export async function createMovie(req, res) {
 
 export async function getMovies(req, res) {
   try {
-    const movies = await moviemodel.find();
-    res.status(200).json({
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2;
+
+    const totalMovies = await moviemodel.countDocuments();
+    const totalPages = Math.ceil(totalMovies / limit);
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    const movies = await moviemodel
+      .find()
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return res.status(200).json({
       success: true,
       data: movies,
-      message: "Movies found successfully"
+      page,
+      nextPage,
+      totalPages,
+      totalMovies
     });
     
 

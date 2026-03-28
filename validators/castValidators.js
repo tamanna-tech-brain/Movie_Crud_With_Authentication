@@ -5,5 +5,13 @@ export const castSchema = Joi.object({
   bio: Joi.string().allow(""),
   image: Joi.string().uri().allow("")
 });
+export const updateCastSchema = Joi.object({
+  name: Joi.string().min(2).optional(),
+  age: Joi.number().optional(),
+  bio: Joi.string().allow("").optional(),
+  image: Joi.string().uri().allow("").optional()
+});
 
-export default castSchema;
+
+
+export default {castSchema,updateCastSchema};

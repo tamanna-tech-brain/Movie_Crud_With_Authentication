@@ -31,12 +31,29 @@ return res.status(201).json({
 export const getHistory = async (req, res) => {
   try {
      const { userId } = req.params;
+    
+     const page = parseInt(req.query.page) || 1;
+    const limit = 2;
 
-    const history = await historymodel.find({ userId}).populate("movieId")
+    const totalHistory = await historymodel.countDocuments({ userId });
+    const totalPages = Math.ceil(totalHistory / limit);
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    const history = await historymodel
+      .find({ userId })
+      .populate("movieId")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
     return res.json({
       success: true,
-      data: history
+      data: history,
+      page,
+      nextPage,
+      totalPages,
+      totalHistory
     });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

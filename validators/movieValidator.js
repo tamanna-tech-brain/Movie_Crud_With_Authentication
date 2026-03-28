@@ -10,4 +10,16 @@ export const movieSchema = Joi.object({
   releaseYear: Joi.number().required()
 });
 
-export default movieSchema;
+export const updateMovieSchema = Joi.object({
+  userId: Joi.string().optional(),
+  title: Joi.string().optional(),
+  description: Joi.string().optional(),
+  categoryId: Joi.array().items(Joi.string()).optional(),
+  language: Joi.string().optional(),
+  duration: Joi.number().optional(),
+  cast: Joi.array().items(Joi.string()).optional(),
+  releaseYear: Joi.number().optional()
+});
+
+
+export default { updateMovieSchema, movieSchema };
