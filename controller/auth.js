@@ -11,6 +11,14 @@ export async function register(req, res) {
       });
     }
     const normalizedEmail = email.toLowerCase();
+    const existingUser = await usermodel.findOne({ email: normalizedEmail });
+
+   if (existingUser) {
+   return res.status(400).json({
+    success: false,
+    message: "User already exists"
+  });
+}
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await usermodel.create({
       username,
