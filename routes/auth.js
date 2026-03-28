@@ -6,5 +6,5 @@ import { loginSchema } from "../validators/userValidator.js";
 const authRouter = Router();
 
 authRouter.post("/register",validate(registerSchema), authcontroller.register)
-authRouter.get("/login", validate(loginSchema), authcontroller.login)
+authRouter.post("/login", validate(loginSchema), authcontroller.login)
 export default authRouter;

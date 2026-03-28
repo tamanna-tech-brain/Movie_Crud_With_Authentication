@@ -23,7 +23,7 @@ const downloadSchema = new mongoose.Schema({
 });
 
 downloadSchema.index(
-  { movieId: 1 },
+  {userId: 1, movieId: 1 },
   { unique: true }
 );
 

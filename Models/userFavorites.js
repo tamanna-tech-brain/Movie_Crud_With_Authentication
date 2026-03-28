@@ -17,7 +17,7 @@ const userFavoriteSchema = new mongoose.Schema({
   timestamps: true
 });
 userFavoriteSchema.index(
-  {  movieId: 1 },
+  { userId: 1, movieId: 1 },
   { unique: true }
 );
 

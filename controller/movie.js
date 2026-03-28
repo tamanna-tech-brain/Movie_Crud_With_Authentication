@@ -18,7 +18,7 @@ export async function createMovie(req, res) {
     res.status(200).json({
       success: true,
       data: movie,
-      message: "Address created successfully"
+      message: "Movie created successfully"
     });
     
 
