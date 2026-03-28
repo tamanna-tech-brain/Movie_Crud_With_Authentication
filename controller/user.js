@@ -4,12 +4,9 @@ export async function getProfileById(req, res) {
   try {
     const { id } = req.params;
     const user = await usermodel.findById(id);
-    if (!user) {
-      throw new Error("not found");
-    }
-    
     res.status(201).json({
       success: true,
+      data: user,
       message: "User found"
     });
     
@@ -26,12 +23,9 @@ export async function updateProfileById(req, res) {
   try {
     const { id } = req.params;
     const updateUser = await usermodel.findByIdAndUpdate(id, req.body, {new:true});
-    if (!updateUser) {
-      throw new Error("not found user id");
-    }
-    
     res.status(201).json({
       success: true,
+      data: updateUser,
       message: "User updated"
     });
     

@@ -3,45 +3,36 @@ import categorymodel from "../models/category.js"
 export async function createCategory(req, res) {
   try {
     const { name, description} = req.body;
-  if (!req.body) {
-  throw new Error("Request body missing");
-}
-
     const newCategory = await categorymodel.create({  
       name,
       description,
       });
-    if (!name|| !description) {
-      throw new Error("not found category");
-    }
     
     res.status(201).json({
       success: true,
+      data: newCategory,
       message: " category created successfully"
     });
     
 
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message
-    });
   }
-  if (error.code === 11000) {
+  catch (error) {
+    if (error.code === 11000) {
   return res.status(400).json({
     success: false,
     message: "Category already exists"
   });
+  }
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
 }
 }
 
 export async function getCategory(req, res) {
   try {
     const categories = await categorymodel.find();
-    if (!categories) {
-      throw new Error("not found");
-    }
-    
     res.status(201).json({
       success: true,
       data: categories,
@@ -61,10 +52,6 @@ export async function getCategoryById(req, res) {
   try {
     const { id } = req.params;
     const categoryData= await categorymodel.findById(id);
-    if (!categoryData) {
-      throw new Error("not found ");
-    }
-    
     res.status(201).json({
       success: true,
       data: categoryData,
@@ -82,16 +69,9 @@ export async function getCategoryById(req, res) {
 
 export async function updateCategoryById(req, res) {
   try {
-    const { id } = req.params;
-    if (!req.body) {
-  throw new Error("Request body missing");
-}
-    const { name, description } = req.body;    
+    const { id } = req.params;   
 
-    const updateCategory = await categorymodel.findByIdAndUpdate(id, { name, description}, {new:true});
-    if (!updateCategory) {
-      throw new Error("not found category id");
-    }
+    const updateCategory = await categorymodel.findByIdAndUpdate(id, req.body, {new:true});
     
     res.status(200).json({
       success: true,
@@ -112,12 +92,11 @@ export async function deleteCategoryById(req, res) {
   try {
     const { id } = req.params;
     const categoryDelete = await categorymodel.findByIdAndDelete(id);
-    if (!categoryDelete) {
-      throw new Error("category id not found" );
-    }
+   
     
     res.status(201).json({
       success: true,
+      data : categoryDelete,
       message: "Deleted successfully"
     });
     

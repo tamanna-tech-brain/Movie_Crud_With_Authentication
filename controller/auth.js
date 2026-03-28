@@ -4,15 +4,8 @@ import bcrypt from "bcrypt";
 export async function register(req, res) {
   try {
     const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required"
-      });
-    }
     const normalizedEmail = email.toLowerCase();
     const existingUser = await usermodel.findOne({ email: normalizedEmail });
-
    if (existingUser) {
    return res.status(400).json({
     success: false,
@@ -40,6 +33,7 @@ export async function register(req, res) {
 });
     res.status(201).json({
       success: true,
+      data: user,
       message: "User registered successfully"
     });
   } catch (error) {
@@ -53,23 +47,14 @@ export async function register(req, res) {
 export async function login(req, res) {
   try {
     const {  email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required"
-      });
-    }
    const normalizedEmail = email.toLowerCase();
     const user = await usermodel.findOne({ email: normalizedEmail });
-    if (!user) {
-      throw new Error("User not found");
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email or password"
+      });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
- 
-    if (!isMatch) {
-     throw new Error("Invalid email or password");
-    } 
     
     let accessToken = jwt.sign({
     id: user._id,
@@ -79,7 +64,7 @@ export async function login(req, res) {
     }
 )
     res.cookie("accessToken", accessToken , {
-    httpOnly:true,
+        httpOnly:true,
         secure: false,
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000
@@ -87,6 +72,7 @@ export async function login(req, res) {
     
     res.status(201).json({
       success: true,
+      data: user,
       message: "User logged In successfully"
     });
 

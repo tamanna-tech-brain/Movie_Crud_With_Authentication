@@ -3,11 +3,6 @@ import castmodel from "../models/cast.js"
 export async function createCast(req, res) {
   try {
     const { name, age, bio, image } = req.body;
-
-    if (!name) {
-      throw new Error("Name is required");
-    }
-
     const cast = await castmodel.create({
       name,
       age,
@@ -49,9 +44,6 @@ export async function getCastById(req, res) {
     const { id } = req.params;
 
     const cast = await castmodel.findById(id);
-    if (!cast) {
-      throw new Error("Cast not found");
-    }
 
     res.json({
       success: true,
@@ -93,6 +85,7 @@ export async function deleteCastById(req, res) {
 
     res.json({
       success: true,
+      data : castmodel,
       message: "Cast deleted successfully"
     });
 
