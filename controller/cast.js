@@ -44,10 +44,16 @@ export async function getCastById(req, res) {
     const { id } = req.params;
 
     const cast = await castmodel.findById(id);
-
-    res.json({
+    if (!cast) {
+      return res.status(404).json({
+        success: false,
+        message: "Cast not found"
+      });
+    }
+    return res.status(200).json({
       success: true,
-      data: cast
+      data: deleted,
+      message: "Cast found successfully"
     });
 
   } catch (error) {
@@ -69,7 +75,7 @@ export async function updateCastById(req, res) {
         message: "Cast not found"
       });
     }
-    res.json({
+     return res.status(200).json({
       success: true,
       data: updated
     });
@@ -86,16 +92,16 @@ export async function deleteCastById(req, res) {
   try {
     const { id } = req.params;
 
-    await castmodel.findByIdAndDelete(id);
+    const deleted = await castmodel.findByIdAndDelete(id);
     if (!deleted) {
       return res.status(404).json({
         success: false,
         message: "Cast not found"
       });
     }
-    res.json({
+    return res.status(200).json({
       success: true,
-      data : deleted,
+      data: deleted,
       message: "Cast deleted successfully"
     });
 

@@ -16,9 +16,10 @@ export const watchMovie = async (req, res) => {
     movieId
 });
 
-return res.json({
+return res.status(201).json({
   success: true,
-  data: movie,
+  data: history,
+  message: "Movie watched"
 });
 
   } catch (error) {

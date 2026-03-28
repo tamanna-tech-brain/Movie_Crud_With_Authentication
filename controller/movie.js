@@ -15,7 +15,7 @@ export async function createMovie(req, res) {
         releaseYear
       });
     
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: movie,
       message: "Address created successfully"
@@ -77,12 +77,18 @@ export async function updateMovieById(req, res) {
   try {
     const { id } = req.params;
     const updateMovie = await moviemodel.findByIdAndUpdate(id, req.body, {new:true});
+    if (!updateMovie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
     res.status(201).json({
       success: true,
       data: updateMovie,
       message: " updated successsfully"
     });
-    if (!updatedMovie) {
+    if (!updateMovie) {
       return res.status(404).json({
         success: false,
         message: "Movie not found"

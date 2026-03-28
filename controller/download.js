@@ -22,7 +22,7 @@ export const downloadMovie = async (req, res) => {
       movieId
     }); 
     
-    return res.json({
+    return res.status(201).json({
       success: true,
       data: download,
       message: "Movie downloaded"

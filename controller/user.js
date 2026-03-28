@@ -29,7 +29,7 @@ export async function updateProfileById(req, res) {
   try {
     const { id } = req.params;
     const updateUser = await usermodel.findByIdAndUpdate(id, req.body, {new:true});
-     if (!updatedUser) {
+     if (!updateuser) {
       return res.status(404).json({
         success: false,
         message: "User not found"
