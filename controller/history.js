@@ -39,9 +39,22 @@ export const getHistory = async (req, res) => {
     const totalPages = Math.ceil(totalHistory / limit);
     const nextPage = page < totalPages ? page + 1 : null;
 
-    const history = await historymodel
-      .find({ userId })
-      .populate("movieId")
+    const history = await historymodel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId)
+        }
+      },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "movieId",
+          foreignField: "_id",
+          as: "movieId"
+        }
+      },
+      {
+        $unwind: "$movieId"}])
       .skip((page - 1) * limit)
       .limit(limit);
 
