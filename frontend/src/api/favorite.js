@@ -1,4 +1,4 @@
 import API from "./axios";
 
-export const addFavorite = (data) =>
-  API.post("/favorite/create", data);
+export const addFavorite = (movieId, userId) =>
+  API.post("/favorite", { movieId, userId });
