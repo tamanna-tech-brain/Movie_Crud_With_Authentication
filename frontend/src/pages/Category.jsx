@@ -6,26 +6,31 @@ export default function Category() {
   const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
 
-  const fetch = async () => {
+  const fetchData = async () => {
     const res = await getCategories();
-    setData(res.data.data);
+    setData(res.data.data || []);
   };
 
   useEffect(() => {
-    fetch();
+    fetchData();
   }, []);
 
   return (
     <div>
-      <h1>Category</h1>
+      <h2>Categories</h2>
 
-      <CategoryForm existing={selected} refresh={fetch} />
+      {/* ✅ CREATE / UPDATE FORM MUST BE HERE */}
+      <CategoryForm existing={selected} refresh={fetchData} />
 
+      {/* LIST */}
       {data.map((c) => (
         <div key={c._id}>
-          <h3>{c.name}</h3>
+          {c.name}
+
           <button onClick={() => setSelected(c)}>Edit</button>
-          <button onClick={() => deleteCategory(c._id).then(fetch)}>Delete</button>
+          <button onClick={() => deleteCategory(c._id).then(fetchData)}>
+            Delete
+          </button>
         </div>
       ))}
     </div>

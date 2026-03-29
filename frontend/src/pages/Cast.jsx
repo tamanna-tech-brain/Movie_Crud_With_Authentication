@@ -3,29 +3,29 @@ import { getCasts, deleteCast } from "../api/cast";
 import CastForm from "./CastForm";
 
 export default function Cast() {
-  const [casts, setCasts] = useState([]);
+  const [data, setData] = useState([]);
   const [selected, setSelected] = useState(null);
 
-  const fetch = async () => {
+  const fetchData = async () => {
     const res = await getCasts();
-    setCasts(res.data.data);
+    setData(res.data.data || []);
   };
 
   useEffect(() => {
-    fetch();
+    fetchData();
   }, []);
 
   return (
     <div>
-      <h1>Cast</h1>
+      <h2>Casts</h2>
 
-      <CastForm existing={selected} refresh={fetch} />
+      <CastForm existing={selected} refresh={fetchData} />
 
-      {casts.map((c) => (
+      {data.map((c) => (
         <div key={c._id}>
-          <h3>{c.name}</h3>
+          {c.name}
           <button onClick={() => setSelected(c)}>Edit</button>
-          <button onClick={() => deleteCast(c._id).then(fetch)}>Delete</button>
+          <button onClick={() => deleteCast(c._id)}>Delete</button>
         </div>
       ))}
     </div>

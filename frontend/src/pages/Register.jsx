@@ -1,5 +1,5 @@
 import { useState } from "react";
-import API from "../api/axios";
+import { registerUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
@@ -11,27 +11,19 @@ export default function Register() {
     password: ""
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = async () => {
-    try {
-      await API.post("/auth/register", form);
-      alert("Registered Successfully");
-      navigate("/login");
-    } catch (err) {
-      alert(err.response?.data?.message);
-    }
+    await registerUser(form);
+    alert("Registered");
+    navigate("/login");
   };
 
   return (
     <div>
       <h2>Register</h2>
 
-      <input name="username" placeholder="Username" onChange={handleChange} />
-      <input name="email" placeholder="Email" onChange={handleChange} />
-      <input name="password" placeholder="Password" onChange={handleChange} />
+      <input placeholder="Username" onChange={e => setForm({...form,username:e.target.value})}/>
+      <input placeholder="Email" onChange={e => setForm({...form,email:e.target.value})}/>
+      <input placeholder="Password" onChange={e => setForm({...form,password:e.target.value})}/>
 
       <button onClick={handleSubmit}>Register</button>
     </div>

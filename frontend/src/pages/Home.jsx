@@ -8,7 +8,7 @@ export default function Home() {
 
   const fetchMovies = async () => {
     const res = await getMovies();
-    setMovies(res.data.data);
+    setMovies(res.data.data || []);
   };
 
   useEffect(() => {
@@ -22,19 +22,20 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Movies</h1>
+      <h2>Movies</h2>
 
       <MovieForm existing={selected} refresh={fetchMovies} />
 
-      {movies.map((m) => (
-        <div key={m._id}>
-          <h3>{m.title}</h3>
-          <p>{m.description}</p>
+      <ul>
+        {movies.map((m) => (
+          <li key={m._id}>
+            {m.title}
 
-          <button onClick={() => setSelected(m)}>Edit</button>
-          <button onClick={() => handleDelete(m._id)}>Delete</button>
-        </div>
-      ))}
+            <button onClick={() => setSelected(m)}>Edit</button>
+            <button onClick={() => handleDelete(m._id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

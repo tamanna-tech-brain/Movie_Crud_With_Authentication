@@ -1,17 +1,26 @@
-const handleSubmit = async () => {
-  try {
-    const res = await API.post("/auth/login", form);
+import { useState } from "react";
+import { loginUser } from "../api/auth";
 
-    console.log(res.data); // 👈 check structure
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
 
-    const user = res.data.data; // ✅ correct
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await loginUser(form);
 
-    localStorage.setItem("userId", user._id);
+    localStorage.setItem("token", res.data.token);
+    alert("Login success");
+  };
 
-    alert("Login Success");
-    navigate("/");
-  } catch (err) {
-    console.error(err);
-    alert(err.response?.data?.message);
-  }
-};
+  return (
+    <form onSubmit={handleSubmit}>
+      <input placeholder="Email"
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+      />
+      <input placeholder="Password" type="password"
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
+      />
+      <button>Login</button>
+    </form>
+  );
+}

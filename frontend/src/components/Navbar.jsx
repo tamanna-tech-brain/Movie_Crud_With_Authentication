@@ -1,30 +1,27 @@
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
-  const userId = localStorage.getItem("userId");
-
   return (
-    <div style={{ display: "flex", gap: "10px" }}>
-      <Link to="/">Home</Link>
+    <div style={{ padding: "10px", background: "#222" }}>
+      <Link to="/" style={{ marginRight: 10, color: "#fff" }}>
+        Movies
+      </Link>
 
-      {!userId && <Link to="/login">Login</Link>}
-      {!userId && <Link to="/register">Register</Link>}
+      <Link to="/categories" style={{ marginRight: 10, color: "#fff" }}>
+        Categories
+      </Link>
 
-      {userId && <Link to="/profile">Profile</Link>}
-      {userId && <Link to="/history">History</Link>}
-      {userId && <Link to="/cast">Cast</Link>}
-      {userId && <Link to="/category">Category</Link>}
+      <Link to="/casts" style={{ marginRight: 10, color: "#fff" }}>
+        Casts
+      </Link>
 
-      {userId && (
-        <button
-          onClick={() => {
-            localStorage.removeItem("userId");
-            window.location.reload();
-          }}
-        >
-          Logout
-        </button>
-      )}
+      <Link to="/login" style={{ marginRight: 10, color: "#fff" }}>
+        Login
+      </Link>
+
+      <Link to="/register" style={{ color: "#fff" }}>
+        Register
+      </Link>
     </div>
   );
 }

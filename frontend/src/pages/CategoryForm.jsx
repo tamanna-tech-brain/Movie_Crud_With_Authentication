@@ -1,38 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getCategories, deleteCategory } from "../api/category";
+import CategoryForm from "./CategoryForm";
 
-export default function CategoryForm({ onSubmit, initialData = {} }) {
-  const [form, setForm] = useState({
-    name: initialData.name || "",
-    description: initialData.description || ""
-  });
+export default function Category() {
+  const [data, setData] = useState([]);
+  const [selected, setSelected] = useState(null);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const fetchData = async () => {
+    const res = await getCategories();
+    setData(res.data.data || []);
   };
 
-  const handleSubmit = () => {
-    onSubmit(form);
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div>
-      <h3>Category Form</h3>
+      <h2>Categories</h2>
 
-      <input
-        name="name"
-        placeholder="Name"
-        value={form.name}
-        onChange={handleChange}
-      />
+      {/* ✅ CREATE / UPDATE FORM MUST BE HERE */}
+      <CategoryForm existing={selected} refresh={fetchData} />
 
-      <input
-        name="description"
-        placeholder="Description"
-        value={form.description}
-        onChange={handleChange}
-      />
+      {/* LIST */}
+      {data.map((c) => (
+        <div key={c._id}>
+          {c.name}
 
-      <button onClick={handleSubmit}>Submit</button>
+          <button onClick={() => setSelected(c)}>Edit</button>
+          <button onClick={() => deleteCategory(c._id).then(fetchData)}>
+            Delete
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

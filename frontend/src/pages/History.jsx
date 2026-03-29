@@ -1,45 +1,26 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import API from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
 
 export default function History() {
-  const { user } = useContext(AuthContext);
+  const userId = localStorage.getItem("userId");
   const [history, setHistory] = useState([]);
 
-  const fetchHistory = async () => {
-    try {
-      const res = await API.get(`/history/get/${user._id}`);
-      setHistory(res.data.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
-    if (user) fetchHistory();
-  }, [user]);
+    if (!userId) return;
+
+    API.get(`/history/get/${userId}`)
+      .then(res => setHistory(res.data.data));
+  }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>📺 Watch History</h1>
+    <div>
+      <h2>History</h2>
 
-      {history.length === 0 ? (
-        <p>No history</p>
-      ) : (
-        history.map((h) => (
-          <div key={h._id} style={card}>
-            <h3>{h.movieId.title}</h3>
-            <p>{h.movieId.description}</p>
-          </div>
-        ))
-      )}
+      {history.map((h) => (
+        <div key={h._id}>
+          <p>{h.movieId?.title}</p>
+        </div>
+      ))}
     </div>
   );
 }
-
-const card = {
-  background: "#eee",
-  padding: "10px",
-  margin: "10px 0",
-  borderRadius: "8px",
-};
