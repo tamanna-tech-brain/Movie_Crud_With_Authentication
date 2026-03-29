@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
@@ -8,10 +9,11 @@ import MovieDetails from "./pages/MovieDetails";
 import History from "./pages/History";
 import Cast from "./pages/Cast";
 import Category from "./pages/Category";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Navbar />
 
       <Routes>
@@ -22,8 +24,9 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/cast" element={<Cast />} />
         <Route path="/category" element={<Category />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
-    </>
+    </BrowserRouter>
   );
 }
 

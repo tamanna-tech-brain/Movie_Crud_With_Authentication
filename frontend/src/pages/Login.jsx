@@ -1,48 +1,17 @@
-import { useState, useContext } from "react";
-import { loginUser } from "../api/auth";
-import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import "./auth.css";
-
-export default function Login() {
-  const [form, setForm] = useState({
-    email: "",
-    password: ""
-  });
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+const handleSubmit = async () => {
   try {
-    const res = await loginUser(form);
-    setUser(res.data.data);
-    alert("Login successful");
+    const res = await API.post("/auth/login", form);
+
+    console.log(res.data); // 👈 check structure
+
+    const user = res.data.data; // ✅ correct
+
+    localStorage.setItem("userId", user._id);
+
+    alert("Login Success");
     navigate("/");
   } catch (err) {
-    alert(err.response?.data?.message || "Error");
+    console.error(err);
+    alert(err.response?.data?.message);
   }
 };
-  const { setUser } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  
-
-  return (
-    <div className="auth-container">
-      <form onSubmit={handleSubmit} className="auth-form">
-        <h2>Login</h2>
-
-        <input
-          placeholder="Email"
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-
-        <button>Login</button>
-      </form>
-    </div>
-  );
-}

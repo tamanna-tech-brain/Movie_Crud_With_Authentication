@@ -1,25 +1,29 @@
 import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { user } = useContext(AuthContext);
+  const userId = localStorage.getItem("userId");
 
   return (
-    <div style={{ background: "black", color: "white", padding: "10px" }}>
-      <Link to="/" style={{ margin: 10 }}>Home</Link>
-      <Link to="/cast" style={{ margin: 10 }}>Cast</Link>
-      <Link to="/category" style={{ margin: 10 }}>Category</Link>
+    <div style={{ display: "flex", gap: "10px" }}>
+      <Link to="/">Home</Link>
 
-      {user && <Link to="/history" style={{ margin: 10 }}>History</Link>}
+      {!userId && <Link to="/login">Login</Link>}
+      {!userId && <Link to="/register">Register</Link>}
 
-      {!user ? (
-        <>
-          <Link to="/login" style={{ margin: 10 }}>Login</Link>
-          <Link to="/register" style={{ margin: 10 }}>Register</Link>
-        </>
-      ) : (
-        <span>👤 {user.username}</span>
+      {userId && <Link to="/profile">Profile</Link>}
+      {userId && <Link to="/history">History</Link>}
+      {userId && <Link to="/cast">Cast</Link>}
+      {userId && <Link to="/category">Category</Link>}
+
+      {userId && (
+        <button
+          onClick={() => {
+            localStorage.removeItem("userId");
+            window.location.reload();
+          }}
+        >
+          Logout
+        </button>
       )}
     </div>
   );

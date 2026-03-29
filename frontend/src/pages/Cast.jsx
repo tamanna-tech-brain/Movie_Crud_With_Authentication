@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
-import {
-  getCasts,
-  createCast,
-  deleteCast,
-  updateCast,
-} from "../api/cast";
+import { getCasts, deleteCast } from "../api/cast";
+import CastForm from "./CastForm";
 
 export default function Cast() {
   const [casts, setCasts] = useState([]);
-  const [name, setName] = useState("");
+  const [selected, setSelected] = useState(null);
 
   const fetch = async () => {
     const res = await getCasts();
@@ -19,36 +15,17 @@ export default function Cast() {
     fetch();
   }, []);
 
-  const handleAdd = async () => {
-    await createCast({ name });
-    setName("");
-    fetch();
-  };
-
-  const handleDelete = async (id) => {
-    await deleteCast(id);
-    fetch();
-  };
-
-  const handleUpdate = async (id) => {
-    const newName = prompt("Enter new name");
-    await updateCast(id, { name: newName });
-    fetch();
-  };
-
   return (
     <div>
-      <h2>Cast</h2>
+      <h1>Cast</h1>
 
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      <button onClick={handleAdd}>Add</button>
+      <CastForm existing={selected} refresh={fetch} />
 
       {casts.map((c) => (
         <div key={c._id}>
-          <p>{c.name}</p>
-
-          <button onClick={() => handleUpdate(c._id)}>Update</button>
-          <button onClick={() => handleDelete(c._id)}>Delete</button>
+          <h3>{c.name}</h3>
+          <button onClick={() => setSelected(c)}>Edit</button>
+          <button onClick={() => deleteCast(c._id).then(fetch)}>Delete</button>
         </div>
       ))}
     </div>

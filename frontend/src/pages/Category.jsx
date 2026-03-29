@@ -1,53 +1,31 @@
 import { useEffect, useState } from "react";
-import {
-  getCategories,
-  createCategory,
-  deleteCategory,
-  updateCategory,
-} from "../api/category";
+import { getCategories, deleteCategory } from "../api/category";
+import CategoryForm from "./CategoryForm";
 
 export default function Category() {
-  const [categories, setCategories] = useState([]);
-  const [name, setName] = useState("");
+  const [data, setData] = useState([]);
+  const [selected, setSelected] = useState(null);
 
   const fetch = async () => {
     const res = await getCategories();
-    setCategories(res.data.data);
+    setData(res.data.data);
   };
 
   useEffect(() => {
     fetch();
   }, []);
 
-  const handleAdd = async () => {
-    await createCategory({ name });
-    fetch();
-  };
-
-  const handleDelete = async (id) => {
-    await deleteCategory(id);
-    fetch();
-  };
-
-  const handleUpdate = async (id) => {
-    const newName = prompt("New name");
-    await updateCategory(id, { name: newName });
-    fetch();
-  };
-
   return (
     <div>
-      <h2>Category</h2>
+      <h1>Category</h1>
 
-      <input onChange={(e) => setName(e.target.value)} />
-      <button onClick={handleAdd}>Add</button>
+      <CategoryForm existing={selected} refresh={fetch} />
 
-      {categories.map((c) => (
+      {data.map((c) => (
         <div key={c._id}>
-          <p>{c.name}</p>
-
-          <button onClick={() => handleUpdate(c._id)}>Update</button>
-          <button onClick={() => handleDelete(c._id)}>Delete</button>
+          <h3>{c.name}</h3>
+          <button onClick={() => setSelected(c)}>Edit</button>
+          <button onClick={() => deleteCategory(c._id).then(fetch)}>Delete</button>
         </div>
       ))}
     </div>

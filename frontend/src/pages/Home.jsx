@@ -1,61 +1,38 @@
-import { useEffect, useState, useContext } from "react";
-import { getMovies } from "../api/movie";
-import { useNavigate } from "react-router-dom";
-import { downloadMovie } from "../api/download";
-import { watchMovie } from "../api/history";
-import { AuthContext } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { getMovies, deleteMovie } from "../api/movie";
+import MovieForm from "./MovieForm";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
-  const [page, setPage] = useState(1);
-  const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const [selected, setSelected] = useState(null);
 
   const fetchMovies = async () => {
-    const res = await getMovies(page);
+    const res = await getMovies();
     setMovies(res.data.data);
   };
-  
 
   useEffect(() => {
     fetchMovies();
-  }, [page]);
+  }, []);
 
-  const handleDownload = async (id) => {
-    if (!user) return alert("Login first");
-    await downloadMovie(id, user._id);
-    alert("Downloaded");
-  };
-
-  const handleWatch = async (id) => {
-    if (!user) return alert("Login first");
-    await watchMovie(id, user._id);
-    navigate(`/movie/${id}`);
+  const handleDelete = async (id) => {
+    await deleteMovie(id);
+    fetchMovies();
   };
 
   return (
-    <div className="home">
-      <h1>🎬 Movies</h1>
+    <div>
+      <h1>Movies</h1>
+
+      <MovieForm existing={selected} refresh={fetchMovies} />
 
       {movies.map((m) => (
-        <div key={m._id} className="card">
+        <div key={m._id}>
           <h3>{m.title}</h3>
           <p>{m.description}</p>
 
-          <button onClick={() => navigate(`/movie/${m._id}`)}>
-            View
-          </button>
-
-          <button onClick={() => handleDownload(m._id)}>
-            Download
-          </button>
-
-          <button onClick={() => handleWatch(m._id)}>
-            Watch
-          </button>
-          <button onClick={() => addFavorite(m._id, user._id)}>
-  ❤️ Favorite
-</button>
+          <button onClick={() => setSelected(m)}>Edit</button>
+          <button onClick={() => handleDelete(m._id)}>Delete</button>
         </div>
       ))}
     </div>
