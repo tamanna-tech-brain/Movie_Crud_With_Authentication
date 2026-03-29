@@ -3,25 +3,23 @@ import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
 
   return (
-    <div style={{
-      display: "flex",
-      gap: "20px",
-      padding: "10px",
-      background: "#222",
-      color: "white"
-    }}>
+    <div style={{ display: "flex", gap: "20px", padding: "10px", background: "#222", color: "white" }}>
       <Link to="/">Home</Link>
 
       {!user && <Link to="/login">Login</Link>}
       {!user && <Link to="/register">Register</Link>}
 
-      {/* ✅ THIS IS WHERE YOU ADD */}
       {user && <Link to="/history">History</Link>}
+      {user && <Link to="/profile">Profile</Link>}
 
-      {user && <span>👤 {user.username}</span>}
+      {user && (
+        <button onClick={() => setUser(null)}>
+          Logout
+        </button>
+      )}
     </div>
   );
 }
