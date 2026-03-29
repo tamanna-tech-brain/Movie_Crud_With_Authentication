@@ -1,0 +1,11 @@
+.history-card {
+  background: #1e1e2f;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.history-card h3 {
+  margin: 0;
+}
