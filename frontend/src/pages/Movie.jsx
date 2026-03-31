@@ -1,29 +1,65 @@
 import { useEffect, useState } from "react";
-import API from "../api/axios";
-import MovieForm from "./MovieForm";
+import { getMovies, createMovie, deleteMovie } from "../api";
 
-export default function Movie() {
+function Movies() {
   const [movies, setMovies] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
-  const fetchData = async () => {
-    const res = await API.get("/movie/get");
-    setMovies(res.data.data);
+  const fetchMovies = () => {
+    getMovies().then(setMovies);
   };
 
   useEffect(() => {
-    fetchData();
+    fetchMovies();
   }, []);
+}
+ const handleCreate = () => {
+    createMovie({ title, description })
+      .then(() => {
+        fetchMovies(); // refresh UI
+      });
+  };
+    const handleDelete = (id) => {
+    deleteMovie(id).then(() => {
+      fetchMovies(); // refresh UI
+    });
+  };
+    return (
+    <div>
+      <h2>Movies</h2>
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>🎬 Movies CRUD</h1>
+      <input
+        placeholder="Title"
+        onChange={(e) => setTitle(e.target.value)}
+      />
+
+      <input
+        placeholder="Description"
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      <button onClick={handleCreate}>Create</button>
 
       {movies.map((m) => (
-        <div key={m._id} style={{ background: "#eee", margin: 10, padding: 10 }}>
+        <div
+          key={m._id}
+          style={{
+            border: "1px solid gray",
+            padding: "10px",
+            margin: "10px"
+          }}
+        >
           <h3>{m.title}</h3>
           <p>{m.description}</p>
+
+          <button onClick={() => handleDelete(m._id)}>
+            Delete
+          </button>
         </div>
       ))}
     </div>
   );
-}
+
+
+export default Movies;
