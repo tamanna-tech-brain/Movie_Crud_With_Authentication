@@ -1,19 +1,43 @@
-.card {
-  background: #1e1e2f;
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f0f0f;
   color: white;
-  padding: 15px;
-  margin: 10px;
-  border-radius: 10px;
 }
 
-button {
+.container {
+  padding: 20px;
+}
+
+.form input {
+  padding: 10px;
   margin: 5px;
-  padding: 5px 10px;
   border-radius: 5px;
+  border: none;
+}
+
+.form button {
+  padding: 10px 20px;
+  background: red;
+  color: white;
   border: none;
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.8;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.card {
+  background: #1c1c1c;
+  padding: 15px;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
 }

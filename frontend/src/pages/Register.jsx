@@ -1,31 +1,64 @@
-import { useState } from "react";
-import { registerUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { registerUser } from "../api/api";
 
-export default function Register() {
+const Register = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: ""
-  });
+  const handleRegister = async () => {
+    try {
+      if (!name || !email || !password) {
+        return alert("Fill all fields");
+      }
 
-  const handleSubmit = async () => {
-    await registerUser(form);
-    alert("Registered");
-    navigate("/login");
+      const res = await registerUser({
+        username: name,
+        email,
+        password,
+      });
+     console.log(res.data);
+
+      console.log("Response:" , res.data);
+      alert("Registered successfully");
+      navigate(`/profile/${res.data.data._id}`);
+    } catch (error) {
+      console.log(error.response?.data || error.message);
+      alert("Registration failed");
+    }
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h2>Register</h2>
 
-      <input placeholder="Username" onChange={e => setForm({...form,username:e.target.value})}/>
-      <input placeholder="Email" onChange={e => setForm({...form,email:e.target.value})}/>
-      <input placeholder="Password" onChange={e => setForm({...form,password:e.target.value})}/>
+      <input
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <br />
 
-      <button onClick={handleSubmit}>Register</button>
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <br />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+
+      <button onClick={handleRegister}>Register</button>
     </div>
   );
-}
+};
+
+export default Register;

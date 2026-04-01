@@ -8,5 +8,5 @@ const userRouter = Router();
 
 
 userRouter.get("/get/:id", validate(userIdSchema, "params") ,usercontroller.getProfileById)
-userRouter.put("/update/:id", validate(updateUserSchema, "params"), validate(updateUserSchema), usercontroller.updateProfileById)
-export default userRouter;
+userRouter.put("/update/:id", validate(userIdSchema, "params"), validate(updateUserSchema), usercontroller.updateProfileById)
+export default userRouter

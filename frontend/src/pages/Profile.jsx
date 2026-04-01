@@ -1,32 +1,77 @@
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import API from "../api/axios";
+import { getUserById, updateUserById } from "../api/api";
+import { useParams } from "react-router-dom";
 
-export default function Profile() {
-  const userId = localStorage.getItem("userId");
+const Profile = () => {
+  const { id } = useParams();
 
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(null);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+
+  // ✅ Fetch user
+  const fetchUser = async () => {
+    try {
+      const res = await getUserById(id);
+      setUser(res.data.data);
+      setUsername(res.data.data.username);
+      setEmail(res.data.data.email);
+    } catch (error) {
+      alert("Failed to fetch user");
+    }
+  };
 
   useEffect(() => {
-    if (!userId) return;
-
-    API.get(`/user/get/${userId}`)
-      .then(res => setUser(res.data.data));
+    fetchUser();
   }, []);
 
+  // ✅ Update user
   const handleUpdate = async () => {
-    await API.put(`/user/update/${userId}`, user);
-    alert("Updated");
+    try {
+      const res = await updateUserById(id, {
+        username,
+        email,
+      });
+      setUser(res.data.data); // ✅ update UI instantly
+    alert("Profile updated");
+      fetchUser(); // refresh data
+       navigate(`/profile/${id}`);
+    } catch (error) {
+      alert(error.response?.data?.message || "Update failed");
+    }
   };
 
   return (
-    <div>
-      <h2>Profile</h2>
+    <div style={{ padding: "20px" }}>
+      <h2>User Profile</h2>
 
-      <input value={user.username || ""} onChange={e => setUser({...user,username:e.target.value})}/>
-      <input value={user.email || ""} onChange={e => setUser({...user,email:e.target.value})}/>
-      <input placeholder="password" onChange={e => setUser({...user,password:e.target.value})}/>
+      {user ? (
+        <>
+          <p><b>ID:</b> {user._id}</p>
 
-      <button onClick={handleUpdate}>Update</button>
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+          />
+          <br />
+
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <br />
+
+          <button onClick={handleUpdate}>Update Profile</button>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
-}
+};
+
+export default Profile;

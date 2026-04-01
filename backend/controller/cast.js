@@ -59,7 +59,7 @@ export async function getCastById(req, res) {
     }
     return res.status(200).json({
       success: true,
-      data: deleted,
+      data: cast,
       message: "Cast found successfully"
     });
 
