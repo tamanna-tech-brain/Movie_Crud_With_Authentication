@@ -47,19 +47,29 @@ export const updateCategory = (id, data) =>
 
 export const deleteCategory = (id) =>
   API.delete(`/api/category/delete/${id}`);
-// ✅ Get all movies
-export const getMovies = () => API.get("/get");
 
-// ✅ Get movie by ID
-export const getMovieById = (id) => API.get(`/get/${id}`);
+// ✅ MOVIE APIs
+export const createMovie = (data) =>
+  API.post("/api/movie/create", data);
 
-// ✅ Create movie
-export const createMovie = (data) => API.post("/create", data);
+export const getMovies = (page = 1) =>
+  API.get(`/api/movie/get?page=${page}`);
 
-// ✅ Update movie
+export const getMovieById = (id) =>
+  API.get(`/api/movie/get/${id}`);
+
 export const updateMovie = (id, data) =>
-  API.put(`/update/${id}`, data);
+  API.put(`/api/movie/update/${id}`, data);
 
-// ✅ Delete movie
 export const deleteMovie = (id) =>
-  API.delete(`/delete/${id}`);
+  API.delete(`/api/movie/delete/${id}`);
+// 🎬 Watch Movie (history)
+export const watchMovie = (movieId, data) =>
+  API.post(`/api/history/watch/${movieId}`, data);
+
+export const getHistory = (userId) =>
+  API.get(`/api/history/get/${userId}`);
+
+// DOWNLOAD
+export const downloadMovie = (movieId, data) =>
+  API.post(`/api/download/download/${movieId}`, data);

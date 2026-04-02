@@ -1,6 +1,6 @@
 import { Router } from "express";
 import *as moviecontroller from "../controller/movie.js"
-import  movieSchema, { updateMovieSchema }  from "../validators/movieValidator.js";
+import { movieSchema,  updateMovieSchema }  from "../validators/movieValidator.js";
 import { validate } from "../middleware/validate.js";
 const movieRouter = Router();
 

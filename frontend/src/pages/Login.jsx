@@ -19,7 +19,7 @@ const Login = () => {
 
       // store token
       localStorage.setItem("token", res.data.token);
-
+      localStorage.setItem("userId", res.data.data._id); 
       alert("Login successful");
       navigate(`/profile/${res.data.data._id}`);
     } catch (error) {

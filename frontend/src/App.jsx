@@ -12,25 +12,39 @@ import Category from "./pages/Category";
 import CreateCategory from "./pages/CreateCategory";
 import CategoryDetails from "./pages/CategoryDetails";
 import UpdateCategory from "./pages/UpdateCategory";
+import CreateMovie from "./pages/CreateMovie";
+import MovieDetails from "./pages/MovieDetails";
+import UpdateMovie from "./pages/UpdateMovie";
+import History from "./pages/History";
 
 function App() {
   return (
-    <Navbar>
-    <Routes>
-      <Route path="/" element={<Movies />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/profile/:id" element={<Profile />} />
-      <Route path="/cast" element={<Cast />} />
-      <Route path="/cast/create" element={<CreateCast />} />
-      <Route path="/cast/update/:id" element={<UpdateCast />} />
-      <Route path="/cast/:id" element={<CastDetails />} />
-      <Route path="/category" element={<Category />} />
-      <Route path="/category/create" element={<CreateCategory />} />
-      <Route path="/category/update/:id" element={<UpdateCategory />} />
-      <Route path="/category/:id" element={<CategoryDetails />} />
-    </Routes>
-    </Navbar>
+    <>
+      <Navbar />  
+
+      <Routes>
+        <Route path="/" element={<Movies />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/profile/:id" element={<Profile />} />
+
+        <Route path="/cast" element={<Cast />} />
+        <Route path="/cast/create" element={<CreateCast />} />
+        <Route path="/cast/update/:id" element={<UpdateCast />} />
+        <Route path="/cast/:id" element={<CastDetails />} />
+
+        <Route path="/category" element={<Category />} />
+        <Route path="/category/create" element={<CreateCategory />} />
+        <Route path="/category/update/:id" element={<UpdateCategory />} />
+        <Route path="/category/:id" element={<CategoryDetails />} />
+
+        <Route path="/" element={<Movies />} />
+        <Route path="/movie/create" element={<CreateMovie />} />
+        <Route path="/movie/update/:id" element={<UpdateMovie />} />
+        <Route path="/movie/:id" element={<MovieDetails />} />
+        <Route path="/history" element={<History />} />
+      </Routes>
+    </>
   );
 }
 

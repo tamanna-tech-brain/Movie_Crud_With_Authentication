@@ -19,9 +19,11 @@ const Register = () => {
         email,
         password,
       });
-     console.log(res.data);
+           console.log(res.data);
 
       console.log("Response:" , res.data);
+      localStorage.setItem("userId", res.data.data._id); 
+
       alert("Registered successfully");
       navigate(`/profile/${res.data.data._id}`);
     } catch (error) {
