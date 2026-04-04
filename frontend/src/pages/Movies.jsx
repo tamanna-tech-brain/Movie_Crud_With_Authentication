@@ -27,13 +27,25 @@ const Movies = () => {
   };
 
   const handleWatch = async (movieId) => {
-    try {
-      await watchMovie(movieId, { userId });
-      alert("Added to history");
-    } catch (err) {
-      console.log(err.response?.data);
-    }
-  };
+  if (!userId) {
+    alert("Please login first");
+    return;
+  }
+
+  try {
+    const res = await watchMovie(movieId, {
+  userId,
+  movieId  
+});
+
+    console.log("WATCH RESPONSE:", res.data);
+
+    alert("Added to history");
+
+  } catch (err) {
+    console.log(err.response?.data || err.message);
+  }
+};
 
   const handleDownload = async (movieId) => {
     try {

@@ -1,78 +1,49 @@
 import { useEffect, useState } from "react";
-import { getMovies, deleteMovie, watchMovie, downloadMovie } from "../api/api";
-import { Link } from "react-router-dom";
+import { getHistory } from "../api/api";
 
-const Movies = () => {
-  const [movies, setMovies] = useState([]);
-  const [page, setPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null);
-
+const History = () => {
+  const [history, setHistory] = useState([]);
   const userId = localStorage.getItem("userId");
 
-  const fetchMovies = async (pg = 1) => {
-    const res = await getMovies(pg);
-    setMovies(res.data.data);
-    setPage(res.data.page);
-    setNextPage(res.data.nextPage);
+  const fetchHistory = async () => {
+    try {
+      const res = await getHistory(userId, 1);
+      console.log("HISTORY:", res.data);
+      setHistory(res.data.data);
+    } catch (err) {
+      console.log(err);
+      alert("Error fetching history");
+    }
   };
 
   useEffect(() => {
-    fetchMovies();
+    if (!userId) {
+      alert("Please login first");
+      return;
+    }
+    fetchHistory();
   }, []);
 
-  const handleDelete = async (id) => {
-    await deleteMovie(id);
-    alert("Deleted");
-    fetchMovies(page);
-  };
-
-  const handleWatch = async (movieId) => {
-    try {
-      await watchMovie(movieId, { userId });
-      alert("Added to history");
-    } catch (err) {
-      console.log(err.response?.data);
-    }
-  };
-
-  const handleDownload = async (movieId) => {
-    try {
-      await downloadMovie(movieId, { userId });
-      alert("Downloaded");
-    } catch (err) {
-      console.log(err.response?.data);
-    }
-  };
+  if (!history) return <p>Loading...</p>;
+  if (history.length === 0) return <p>No history found</p>;
 
   return (
-    <div>
-      <h2>Movies</h2>
+    <div style={{ padding: "20px" }}>
+      <h2>Watch History</h2>
 
-      <Link to="/movie/create">Add Movie</Link>
-
-      {movies.map((m) => (
-        <div key={m._id} style={{ border: "1px solid", margin: "10px" }}>
-          <h3>{m.title}</h3>
-
-          <Link to={`/movie/${m._id}`}>View</Link> |{" "}
-          <Link to={`/movie/update/${m._id}`}>Edit</Link> |{" "}
-          <button onClick={() => handleDelete(m._id)}>Delete</button>
-
-          <br />
-
-          <button onClick={() => handleWatch(m._id)}>Watch</button>
-
-          <button onClick={() => handleDownload(m._id)}>
-            Download
-          </button>
+      {history.map((h) => (
+        <div key={h._id} style={{
+          background: "#1c1c1c",
+          padding: "15px",
+          margin: "10px",
+          borderRadius: "10px"
+        }}>
+          <h3>{h.movieId?.title}</h3>
+          <p>User: {h.userId}</p>
         </div>
       ))}
-
-      {nextPage && (
-        <button onClick={() => fetchMovies(nextPage)}>Next</button>
-      )}
     </div>
   );
 };
 
-export default Movies;
+export default History;
