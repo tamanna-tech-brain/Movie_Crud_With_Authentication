@@ -26,6 +26,7 @@ function Navbar() {
       <Link to="/history" style={{ color: "white" }}>
   History
 </Link>
+<Link to="/downloads">My Downloads</Link>
     </div>
   );
 }

@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createMovie } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const CreateMovie = () => {
   const navigate = useNavigate();
+
+  const titleRef = useRef();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -18,8 +20,9 @@ const CreateMovie = () => {
   const [categories, setCategories] = useState([]);
   const [casts, setCasts] = useState([]);
 
-  // ✅ Fetch categories & casts
   useEffect(() => {
+    titleRef.current.focus(); // ✅ autofocus
+
     axios.get("http://localhost:3000/api/category/get")
       .then(res => setCategories(res.data.data))
       .catch(err => console.log(err));
@@ -33,17 +36,9 @@ const CreateMovie = () => {
     try {
       const userId = localStorage.getItem("userId");
 
-      console.log("USER ID:", userId); // 🔍 DEBUG
+      if (!userId) return alert("Please login first");
 
-      if (!userId || userId.length < 10) {
-        return alert("Please login first");
-      }
-
-      if (
-        !title || !description || !language ||
-        !duration || !releaseYear ||
-        !categoryId || !castId
-      ) {
+      if (!title || !description || !language || !duration || !releaseYear || !categoryId || !castId) {
         return alert("Fill all fields");
       }
 
@@ -60,9 +55,8 @@ const CreateMovie = () => {
 
       alert("Movie Created");
       navigate("/");
-
     } catch (err) {
-      console.log(err.response?.data || err.message);
+      console.log(err);
       alert("Error creating movie");
     }
   };
@@ -71,7 +65,7 @@ const CreateMovie = () => {
     <div style={{ padding: "20px" }}>
       <h2>Create Movie</h2>
 
-      <input placeholder="Title" onChange={e => setTitle(e.target.value)} />
+      <input ref={titleRef} placeholder="Title" onChange={e => setTitle(e.target.value)} />
       <br />
 
       <input placeholder="Description" onChange={e => setDescription(e.target.value)} />
@@ -80,13 +74,12 @@ const CreateMovie = () => {
       <input placeholder="Language" onChange={e => setLanguage(e.target.value)} />
       <br />
 
-      <input placeholder="Duration" type="number" onChange={e => setDuration(e.target.value)} />
+      <input type="number" placeholder="Duration" onChange={e => setDuration(e.target.value)} />
       <br />
 
-      <input placeholder="Release Year" type="number" onChange={e => setReleaseYear(e.target.value)} />
+      <input type="number" placeholder="Release Year" onChange={e => setReleaseYear(e.target.value)} />
       <br />
 
-      {/* Category */}
       <select onChange={e => setCategoryId(e.target.value)}>
         <option value="">Select Category</option>
         {categories.map(c => (
@@ -96,7 +89,6 @@ const CreateMovie = () => {
 
       <br />
 
-      {/* Cast */}
       <select onChange={e => setCastId(e.target.value)}>
         <option value="">Select Cast</option>
         {casts.map(c => (

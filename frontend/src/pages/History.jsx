@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getHistory } from "../api/api";
 
 const History = () => {
@@ -8,10 +8,8 @@ const History = () => {
   const fetchHistory = async () => {
     try {
       const res = await getHistory(userId, 1);
-      console.log("HISTORY:", res.data);
       setHistory(res.data.data);
-    } catch (err) {
-      console.log(err);
+    } catch {
       alert("Error fetching history");
     }
   };
@@ -24,24 +22,28 @@ const History = () => {
     fetchHistory();
   }, []);
 
+  // ✅ useMemo
+  const historyList = useMemo(() => {
+    return history.map((h) => (
+      <div key={h._id} style={{
+        background: "#1c1c1c",
+        padding: "15px",
+        margin: "10px",
+        borderRadius: "10px"
+      }}>
+        <h3>{h.movieId?.title}</h3>
+        <p>User: {h.userId}</p>
+      </div>
+    ));
+  }, [history]);
+
   if (!history) return <p>Loading...</p>;
   if (history.length === 0) return <p>No history found</p>;
 
   return (
     <div style={{ padding: "20px" }}>
       <h2>Watch History</h2>
-
-      {history.map((h) => (
-        <div key={h._id} style={{
-          background: "#1c1c1c",
-          padding: "15px",
-          margin: "10px",
-          borderRadius: "10px"
-        }}>
-          <h3>{h.movieId?.title}</h3>
-          <p>User: {h.userId}</p>
-        </div>
-      ))}
+      {historyList}
     </div>
   );
 };

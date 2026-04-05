@@ -1,17 +1,26 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { registerUser } from "../api/api";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
+  const nameRef = useRef();
+
+  useEffect(() => {
+    nameRef.current.focus();
+  }, []);
 
   const handleRegister = async () => {
+    console.log("FUNCTION CALLED"); // ✅ debug
+
     try {
       if (!name || !email || !password) {
-        return alert("Fill all fields");
+        alert("Fill all fields");
+        return;
       }
 
       const res = await registerUser({
@@ -19,16 +28,17 @@ const Register = () => {
         email,
         password,
       });
-           console.log(res.data);
 
-      console.log("Response:" , res.data);
-      localStorage.setItem("userId", res.data.data._id); 
+      console.log("SUCCESS:", res.data);
+
+      localStorage.setItem("userId", res.data.data._id);
 
       alert("Registered successfully");
       navigate(`/profile/${res.data.data._id}`);
+
     } catch (error) {
-      console.log(error.response?.data || error.message);
-      alert("Registration failed");
+      console.log("ERROR:", error.response?.data);
+      alert(error.response?.data?.message || "Registration failed");
     }
   };
 
@@ -37,6 +47,7 @@ const Register = () => {
       <h2>Register</h2>
 
       <input
+        ref={nameRef}
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -58,7 +69,10 @@ const Register = () => {
       />
       <br />
 
-      <button onClick={handleRegister}>Register</button>
+      {/* ✅ FIXED BUTTON */}
+      <button type="button" onClick={handleRegister}>
+        Register
+      </button>
     </div>
   );
 };

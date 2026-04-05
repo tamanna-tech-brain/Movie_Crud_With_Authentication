@@ -16,6 +16,7 @@ import CreateMovie from "./pages/CreateMovie";
 import MovieDetails from "./pages/MovieDetails";
 import UpdateMovie from "./pages/UpdateMovie";
 import History from "./pages/History";
+import Download from "./pages/Download";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="/movie/update/:id" element={<UpdateMovie />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
         <Route path="/history" element={<History />} />
+        <Route path="/downloads" element={<Download />} />
       </Routes>
     </>
   );

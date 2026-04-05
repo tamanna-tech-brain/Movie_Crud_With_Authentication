@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getCastById } from "../api/api";
 import { useParams } from "react-router-dom";
 
@@ -6,9 +6,14 @@ const CastDetails = () => {
   const { id } = useParams();
   const [cast, setCast] = useState(null);
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
-    getCastById(id).then(res => setCast(res.data.data));
-  }, []);
+    if (!hasFetched.current) {
+      getCastById(id).then(res => setCast(res.data.data));
+      hasFetched.current = true;
+    }
+  }, [id]);
 
   if (!cast) return <p>Loading...</p>;
 
