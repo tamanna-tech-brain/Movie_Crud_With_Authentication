@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState } from "react";
 import { getCategories, deleteCategory } from "../api/api";
 import { Link } from "react-router-dom";
+import "./category.css";
 
 const Category = () => {
   const [categories, setCategories] = useState([]);
@@ -8,53 +9,83 @@ const Category = () => {
   const [nextPage, setNextPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
 
-  const hasFetched = useRef(false);
-
   const fetchCategories = async (pg = 1) => {
-    const res = await getCategories(pg);
-    setCategories(res.data.data);
-    setPage(res.data.page);
-    setNextPage(res.data.nextPage);
-    setPrevPage(res.data.prevPage);
+    try {
+      const res = await getCategories(pg);
+
+      setCategories(res.data.data || []);
+      setPage(res.data.page);
+      setNextPage(res.data.nextPage);
+      setPrevPage(res.data.prevPage);
+    } catch {
+      alert("Error fetching categories");
+    }
   };
 
   useEffect(() => {
-    if (!hasFetched.current) {
-      fetchCategories();
-      hasFetched.current = true;
-    }
+    fetchCategories();
   }, []);
 
-  const categoryList = useMemo(() => {
-    return categories.map((c) => (
-      <div key={c._id} style={{ border: "1px solid", margin: "10px", padding: "10px" }}>
-        <h3>{c.name}</h3>
-        <p>{c.description}</p>
-
-        <Link to={`/category/${c._id}`}>View</Link>{" | "}
-        <Link to={`/category/update/${c._id}`}>Edit</Link>{" | "}
-        <button onClick={() => deleteCategory(c._id)}>Delete</button>
-      </div>
-    ));
-  }, [categories]);
+  const handleDelete = async (id) => {
+    await deleteCategory(id);
+    fetchCategories(page);
+  };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Categories</h2>
+    <div className="cat-container">
 
-      <Link to="/category/create">Add Category</Link>
+      <div className="cat-header">
+        <h2>📂 Categories</h2>
+        <Link to="/category/create" className="cat-add">
+          + Add Category
+        </Link>
+      </div>
 
-      {categoryList}
+      {/* GRID */}
+      <div className="cat-grid">
+        {categories.map((c) => (
+          <div className="cat-card" key={c._id}>
 
-      <button disabled={!prevPage} onClick={() => fetchCategories(prevPage)}>
-        Previous
-      </button>
+            <div className="cat-img">
+              <img
+                src={`https://source.unsplash.com/400x300/?${c.name}`}
+                alt={c.name}
+              />
 
-      <span> Page {page} </span>
+              <div className="cat-hover">
+                <button onClick={() => handleDelete(c._id)}>
+                  Delete
+                </button>
+              </div>
+            </div>
 
-      <button disabled={!nextPage} onClick={() => fetchCategories(nextPage)}>
-        Next
-      </button>
+            <div className="cat-info">
+              <h3>{c.name}</h3>
+              <p>{c.description}</p>
+
+              <div className="cat-actions">
+                <Link to={`/category/${c._id}`}>View</Link>
+                <Link to={`/category/update/${c._id}`}>Edit</Link>
+              </div>
+            </div>
+
+          </div>
+        ))}
+      </div>
+
+      {/* PAGINATION */}
+      <div className="cat-pagination">
+        <button disabled={!prevPage} onClick={() => fetchCategories(prevPage)}>
+          ⬅ Prev
+        </button>
+
+        <span>Page {page}</span>
+
+        <button disabled={!nextPage} onClick={() => fetchCategories(nextPage)}>
+          Next ➡
+        </button>
+      </div>
+
     </div>
   );
 };

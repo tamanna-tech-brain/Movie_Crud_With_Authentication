@@ -1,45 +1,78 @@
-import { useEffect, useState, useMemo } from "react";
-import { getMovieById } from "../api/api";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getUserDownloads } from "../api/api";
+import noImage from "../assets/no-image.jpg";
+import "./download.css";
 
 const Download = () => {
   const [downloads, setDownloads] = useState([]);
+  const [page, setPage] = useState(1);
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
+  const [search, setSearch] = useState("");
 
-  const fetchDownloads = async () => {
-    const stored = JSON.parse(localStorage.getItem("downloads")) || [];
+  const userId = localStorage.getItem("userId");
 
-    const moviePromises = stored.map(id => getMovieById(id));
+  const fetchDownloads = async (pg = 1, searchText = "") => {
+    if (!userId) return;
 
-    const results = await Promise.all(moviePromises);
+    try {
+      const res = await getUserDownloads(userId, pg, searchText);
 
-    const movies = results.map(res => res.data.data);
+      const data = res.data;
 
-    setDownloads(movies);
+      setDownloads(data.data || []);
+      setPage(data.page || 1);
+      setNextPage(data.nextPage || null);
+      setPrevPage(data.prevPage || null);
+
+    } catch (err) {
+      console.error("Download error:", err);
+      alert("Error loading downloads");
+    }
   };
 
   useEffect(() => {
-    fetchDownloads();
+    fetchDownloads(1, "");
   }, []);
 
-  const downloadList = useMemo(() => {
-    return downloads.map((m) => (
-      <div key={m._id} style={{
-        border: "1px solid",
-        margin: "10px",
-        padding: "10px"
-      }}>
-        <h3>{m.title}</h3>
-        <Link to={`/movie/${m._id}`}>View</Link>
-      </div>
-    ));
-  }, [downloads]);
-
-  if (downloads.length === 0) return <p>No downloads found</p>;
-
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Downloaded Movies</h2>
-      {downloadList}
+    <div className="download-container">
+      <h2>📥 My Downloads</h2>
+
+      <input
+        placeholder="Search downloads..."
+        value={search}
+        onChange={(e) => {
+          const val = e.target.value;
+          setSearch(val);
+          fetchDownloads(1, val);
+        }}
+      />
+
+      <div className="download-grid">
+        {downloads.map((d) => (
+  <div key={d._id} className="download-card">
+    <img
+      src={d.movie?.poster || noImage}   // ✅ FIX
+      alt={d.movie?.title}
+      onError={(e) => (e.target.src = noImage)}
+    />
+    <h4>{d.movie?.title}</h4>           // ✅ FIX
+  </div>
+))}
+      </div>
+
+      <div>
+        <button disabled={!prevPage} onClick={() => fetchDownloads(prevPage, search)}>
+          Prev
+        </button>
+
+        <span>{page}</span>
+
+        <button disabled={!nextPage} onClick={() => fetchDownloads(nextPage, search)}>
+          Next
+        </button>
+      </div>
     </div>
   );
 };

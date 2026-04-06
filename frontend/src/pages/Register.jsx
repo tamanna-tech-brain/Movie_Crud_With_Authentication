@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { registerUser } from "../api/api";
+import "./auth.css";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -15,8 +16,6 @@ const Register = () => {
   }, []);
 
   const handleRegister = async () => {
-    console.log("FUNCTION CALLED"); // ✅ debug
-
     try {
       if (!name || !email || !password) {
         alert("Fill all fields");
@@ -29,50 +28,55 @@ const Register = () => {
         password,
       });
 
-      console.log("SUCCESS:", res.data);
+      alert("✅ Registered successfully");
 
       localStorage.setItem("userId", res.data.data._id);
 
-      alert("Registered successfully");
-      navigate(`/profile/${res.data.data._id}`);
-
+      navigate("/login");
     } catch (error) {
-      console.log("ERROR:", error.response?.data);
       alert(error.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Register</h2>
+    <div className="auth-container">
+      <div className="auth-card">
 
-      <input
-        ref={nameRef}
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <br />
+        <h2 className="auth-title">Create Account</h2>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
+        <input
+          ref={nameRef}
+          placeholder="Username"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      {/* ✅ FIXED BUTTON */}
-      <button type="button" onClick={handleRegister}>
-        Register
-      </button>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button onClick={handleRegister}>
+          Register
+        </button>
+
+        {/* ✅ FIXED */}
+        <p className="auth-link">
+          Already have an account?{" "}
+          <span onClick={() => navigate("/login")}>
+            Login
+          </span>
+        </p>
+
+      </div>
     </div>
   );
 };

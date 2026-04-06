@@ -33,32 +33,40 @@ export async function createMovie(req, res) {
 export async function getMovies(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 6;
+    const search = req.query.search || "";
+    const category = req.query.category;
 
-    const totalMovies = await moviemodel.countDocuments();
+    const skip = (page - 1) * limit;
+
+    const query = {
+      title: { $regex: search, $options: "i" }
+    };
+
+    // ✅ CATEGORY FILTER FIX
+    if (category) {
+      query.categoryId = category;
+    }
+
+    const totalMovies = await moviemodel.countDocuments(query);
     const totalPages = Math.ceil(totalMovies / limit);
-    const nextPage = page < totalPages ? page + 1 : null;
 
     const movies = await moviemodel
-      .find()
-      .skip((page - 1) * limit)
+      .find(query)
+      .skip(skip)
       .limit(limit);
 
-    return res.status(200).json({
+    res.json({
       success: true,
       data: movies,
       page,
-      nextPage,
-      totalPages,
-      totalMovies
+      nextPage: page < totalPages ? page + 1 : null,
+      prevPage: page > 1 ? page - 1 : null,
+      totalPages
     });
-    
 
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message
-    });
+    res.status(500).json({ message: error.message });
   }
 }
 

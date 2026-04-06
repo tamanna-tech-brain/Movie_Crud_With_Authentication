@@ -26,22 +26,37 @@ export async function getCasts(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 2;
-    const totalcasts = await castmodel.countDocuments()
-    const totalPages = Math.ceil(totalcasts / limit);
-    const nextPage = page < totalPages ? page + 1: null;
+    const search = req.query.search || "";
 
-    const casts = await castmodel.find().skip((page -1 ) * limit).limit(limit);
+    const skip = (page - 1) * limit;
+
+    const query = {
+      name: { $regex: search, $options: "i" }
+    };
+
+    const totalcasts = await castmodel.countDocuments(query);
+    const totalPages = Math.ceil(totalcasts / limit);
+
+    const casts = await castmodel
+      .find(query)
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json({
       success: true,
-      data: casts , page,
-      nextPage , totalPages, totalcasts
+      data: casts,
+      page,
+      nextPage: page < totalPages ? page + 1 : null,
+      prevPage: page > 1 ? page - 1 : null,
+      totalPages,
+      totalcasts
     });
 
   } catch (error) {
-    res.status(400).json({
+    console.log("CAST ERROR:", error);
+    res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 }

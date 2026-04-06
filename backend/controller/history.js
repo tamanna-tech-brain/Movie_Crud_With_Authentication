@@ -32,13 +32,12 @@ return res.status(201).json({
 export const getHistory = async (req, res) => {
   try {
      const { userId } = req.params;
-    
-     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
-
-    const totalHistory = await historymodel.countDocuments({ userId });
-    const totalPages = Math.ceil(totalHistory / limit);
-    const nextPage = page < totalPages ? page + 1 : null;
+     const {
+      page= 1,
+      limit= 2,
+      search ="",
+     } = req.query;
+     const skip = (page - 1) * limit;
 
     const history = await historymodel.aggregate([
       {
@@ -55,20 +54,31 @@ export const getHistory = async (req, res) => {
         }
       },
       {
-        $unwind: "$movieId"}])
-      .skip((page - 1) * limit)
-      .limit(limit);
+        $unwind: "$movieId"},
+       {
+        $match: {
+          "movieId.title": { $regex: search, $options: "i" }
+        }
+      }, 
+
+      { $skip: skip },
+      { $limit: Number(limit) }
+    ]);
+     const totalHistory = await historymodel.countDocuments({
+  userId: new mongoose.Types.ObjectId(userId)
+});
 
     return res.json({
       success: true,
       data: history,
-      page,
-      nextPage,
-      totalPages,
+      page: Number(page),
+      totalPages: Math.ceil(totalHistory / limit),
+      nextPage: page < Math.ceil(totalHistory / limit) ? Number(page + 1) : null,
+      prevPage: page > 1 ? Number(page - 1) : null,
       totalHistory
     });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};

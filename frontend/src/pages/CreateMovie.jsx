@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { createMovie } from "../api/api";
+import { createMovie, getCategories, getCasts } from "../api/api";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const CreateMovie = () => {
   const navigate = useNavigate();
-
   const titleRef = useRef();
 
   const [title, setTitle] = useState("");
@@ -13,34 +11,68 @@ const CreateMovie = () => {
   const [language, setLanguage] = useState("");
   const [duration, setDuration] = useState("");
   const [releaseYear, setReleaseYear] = useState("");
+  const [poster, setPoster] = useState(""); // ✅ NEW
 
-  const [categoryId, setCategoryId] = useState("");
-  const [castId, setCastId] = useState("");
+  const [categoryIds, setCategoryIds] = useState([]);
+  const [castIds, setCastIds] = useState([]);
 
   const [categories, setCategories] = useState([]);
   const [casts, setCasts] = useState([]);
 
   useEffect(() => {
-    titleRef.current.focus(); // ✅ autofocus
+    titleRef.current.focus();
 
-    axios.get("http://localhost:3000/api/category/get")
-      .then(res => setCategories(res.data.data))
-      .catch(err => console.log(err));
+    const fetchAllData = async () => {
+      try {
+        let allCategories = [];
+        let allCasts = [];
 
-    axios.get("http://localhost:3000/api/cast/get")
-      .then(res => setCasts(res.data.data))
-      .catch(err => console.log(err));
+        let page = 1;
+        let nextPage = true;
+
+        while (nextPage) {
+          const res = await getCategories(page);
+          allCategories = [...allCategories, ...(res.data.data || [])];
+          nextPage = res.data.nextPage;
+          page = nextPage;
+        }
+
+        page = 1;
+        nextPage = true;
+
+        while (nextPage) {
+          const res = await getCasts(page);
+          allCasts = [...allCasts, ...(res.data.data || [])];
+          nextPage = res.data.nextPage;
+          page = nextPage;
+        }
+
+        setCategories(allCategories);
+        setCasts(allCasts);
+      } catch (err) {
+        console.log(err);
+        alert("Error loading data");
+      }
+    };
+
+    fetchAllData();
   }, []);
+
+  const handleCategoryChange = (e) => {
+    const values = Array.from(e.target.selectedOptions, (o) => o.value);
+    setCategoryIds(values);
+  };
+
+  const handleCastChange = (e) => {
+    const values = Array.from(e.target.selectedOptions, (o) => o.value);
+    setCastIds(values);
+  };
 
   const handleSubmit = async () => {
     try {
       const userId = localStorage.getItem("userId");
 
-      if (!userId) return alert("Please login first");
-
-      if (!title || !description || !language || !duration || !releaseYear || !categoryId || !castId) {
-        return alert("Fill all fields");
-      }
+      if (!userId) return alert("Login first");
 
       await createMovie({
         userId,
@@ -49,11 +81,12 @@ const CreateMovie = () => {
         language,
         duration: Number(duration),
         releaseYear: Number(releaseYear),
-        categoryId: [categoryId],
-        cast: [castId]
+        poster, // ✅ SEND POSTER
+        categoryId: categoryIds,
+        cast: castIds
       });
 
-      alert("Movie Created");
+      alert("🎉 Movie Created");
       navigate("/");
     } catch (err) {
       console.log(err);
@@ -62,43 +95,111 @@ const CreateMovie = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Create Movie</h2>
+    <div style={{
+      minHeight: "100vh",
+      background: "#0f0f0f",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center"
+    }}>
+      <div style={{
+        background: "#1c1c1c",
+        padding: "25px",
+        borderRadius: "10px",
+        width: "400px"
+      }}>
+        <h2 style={{ textAlign: "center" }}>🎬 Create Movie</h2>
 
-      <input ref={titleRef} placeholder="Title" onChange={e => setTitle(e.target.value)} />
-      <br />
+        <input ref={titleRef} placeholder="Title"
+          onChange={(e) => setTitle(e.target.value)} className="input" />
 
-      <input placeholder="Description" onChange={e => setDescription(e.target.value)} />
-      <br />
+        <input placeholder="Description"
+          onChange={(e) => setDescription(e.target.value)} className="input" />
 
-      <input placeholder="Language" onChange={e => setLanguage(e.target.value)} />
-      <br />
+        <input placeholder="Language"
+          onChange={(e) => setLanguage(e.target.value)} className="input" />
 
-      <input type="number" placeholder="Duration" onChange={e => setDuration(e.target.value)} />
-      <br />
+        <input type="number" placeholder="Duration"
+          onChange={(e) => setDuration(e.target.value)} className="input" />
 
-      <input type="number" placeholder="Release Year" onChange={e => setReleaseYear(e.target.value)} />
-      <br />
+        <input type="number" placeholder="Release Year"
+          onChange={(e) => setReleaseYear(e.target.value)} className="input" />
 
-      <select onChange={e => setCategoryId(e.target.value)}>
-        <option value="">Select Category</option>
-        {categories.map(c => (
-          <option key={c._id} value={c._id}>{c.name}</option>
-        ))}
-      </select>
+        {/* ✅ POSTER INPUT */}
+        <input
+          placeholder="Poster Image URL"
+          onChange={(e) => setPoster(e.target.value)}
+          className="input"
+        />
 
-      <br />
+        {/* ✅ LIVE PREVIEW */}
+        {poster && (
+          <img
+            src={poster}
+            alt="preview"
+            style={{
+              width: "100%",
+              height: "200px",
+              objectFit: "cover",
+              borderRadius: "8px",
+              marginBottom: "10px"
+            }}
+          />
+        )}
 
-      <select onChange={e => setCastId(e.target.value)}>
-        <option value="">Select Cast</option>
-        {casts.map(c => (
-          <option key={c._id} value={c._id}>{c.name}</option>
-        ))}
-      </select>
+        <label>Categories</label>
+        <select multiple onChange={handleCategoryChange} className="select">
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>{c.name}</option>
+          ))}
+        </select>
 
-      <br />
+        <label>Cast</label>
+        <select multiple onChange={handleCastChange} className="select">
+          {casts.map((c) => (
+            <option key={c._id} value={c._id}>{c.name}</option>
+          ))}
+        </select>
 
-      <button onClick={handleSubmit}>Create</button>
+        <button onClick={handleSubmit} className="btn">
+          Create Movie
+        </button>
+      </div>
+
+      {/* ✅ STYLE */}
+      <style>{`
+        .input {
+          width: 100%;
+          padding: 10px;
+          margin: 8px 0;
+          border-radius: 6px;
+          border: none;
+          background: #2a2a2a;
+          color: white;
+        }
+
+        .select {
+          width: 100%;
+          height: 90px;
+          margin-bottom: 10px;
+          background: #2a2a2a;
+          color: white;
+        }
+
+        .btn {
+          width: 100%;
+          padding: 10px;
+          background: red;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        .btn:hover {
+          background: darkred;
+        }
+      `}</style>
     </div>
   );
 };

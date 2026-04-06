@@ -21,28 +21,37 @@ import Download from "./pages/Download";
 function App() {
   return (
     <>
-      <Navbar />  
+      <Navbar />
 
       <Routes>
+        {/* ✅ MAIN */}
         <Route path="/" element={<Movies />} />
+
+        {/* ✅ AUTH */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+
+        {/* ✅ USER */}
         <Route path="/profile/:id" element={<Profile />} />
 
+        {/* ✅ CAST */}
         <Route path="/cast" element={<Cast />} />
         <Route path="/cast/create" element={<CreateCast />} />
         <Route path="/cast/update/:id" element={<UpdateCast />} />
         <Route path="/cast/:id" element={<CastDetails />} />
 
+        {/* ✅ CATEGORY */}
         <Route path="/category" element={<Category />} />
         <Route path="/category/create" element={<CreateCategory />} />
         <Route path="/category/update/:id" element={<UpdateCategory />} />
         <Route path="/category/:id" element={<CategoryDetails />} />
 
-        <Route path="/" element={<Movies />} />
+        {/* ✅ MOVIES */}
         <Route path="/movie/create" element={<CreateMovie />} />
         <Route path="/movie/update/:id" element={<UpdateMovie />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
+
+        {/* ✅ EXTRA */}
         <Route path="/history" element={<History />} />
         <Route path="/downloads" element={<Download />} />
       </Routes>

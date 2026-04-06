@@ -1,151 +1,173 @@
-import { useEffect, useState, useMemo, useRef } from "react";
-import { getMovies, deleteMovie, watchMovie, downloadMovie } from "../api/api";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  getMovies,
+  getMoviesByCategory,
+  watchMovie,
+  downloadMovie,
+} from "../api/api";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import "./movies.css";
+import noImage from "../assets/no-image.jpg";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
+
   const [page, setPage] = useState(1);
   const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
+  const [search, setSearch] = useState("");
 
-  // ✅ NEW STATE (for downloaded movies)
-  const [downloadedIds, setDownloadedIds] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const params = new URLSearchParams(location.search);
+  const categoryId = params.get("category");
 
   const userId = localStorage.getItem("userId");
-  const hasFetched = useRef(false);
 
-  const fetchMovies = async (pg = 1) => {
+  const fetchMovies = async (pg = 1, searchText = "") => {
     try {
-      const res = await getMovies(pg);
+      let res;
+
+      if (categoryId) {
+        res = await getMoviesByCategory(categoryId, pg, searchText);
+      } else {
+        res = await getMovies(pg, searchText);
+      }
 
       setMovies(res.data.data || []);
       setPage(res.data.page);
       setNextPage(res.data.nextPage);
+      setPrevPage(res.data.prevPage);
     } catch (err) {
       console.log(err);
       alert("Error fetching movies");
     }
   };
 
-  // ✅ LOAD downloaded ids from localStorage
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("downloads")) || [];
-    setDownloadedIds(stored);
-  }, []);
-
-  useEffect(() => {
-    if (!hasFetched.current) {
-      fetchMovies();
-      hasFetched.current = true;
-    }
-  }, []);
-
-  const handleDelete = async (id) => {
-    await deleteMovie(id);
-    fetchMovies(page);
-  };
+    fetchMovies(1, search);
+  }, [categoryId]);
 
   const handleWatch = async (movieId) => {
-    if (!userId) {
-      alert("Login first");
-      return;
-    }
-
     try {
       await watchMovie(movieId, { userId, movieId });
-      alert("Added to history");
+      alert("▶ Watching...");
     } catch {
       alert("Watch failed");
     }
   };
 
-  // ✅ FIXED DOWNLOAD
   const handleDownload = async (movieId) => {
+  try {
+    const userId = localStorage.getItem("userId");
+
     if (!userId) {
       alert("Please login first");
       return;
     }
 
-    try {
-      const res = await downloadMovie(movieId, {
-        userId,
-        movieId
-      });
+    const res = await downloadMovie(movieId, { userId });
 
-      alert(res.data.message || "Downloaded successfully");
-
-      // ✅ SAVE to localStorage
-      const updated = [...downloadedIds, movieId];
-      setDownloadedIds(updated);
-      localStorage.setItem("downloads", JSON.stringify(updated));
-
-    } catch (err) {
-      console.log("ERROR:", err.response?.data);
-
-      // ✅ HANDLE DUPLICATE ERROR
-      if (err.response?.data?.error?.includes("duplicate")) {
-        alert("Already downloaded ✅");
-
-        // still mark as downloaded in UI
-        const updated = [...downloadedIds, movieId];
-        setDownloadedIds(updated);
-        localStorage.setItem("downloads", JSON.stringify(updated));
-      } else {
-        alert("Download failed");
-      }
-    }
-  };
-
-  // ✅ SAFE useMemo (UI NEVER disappears)
-  const movieList = useMemo(() => {
-    if (!movies || movies.length === 0) {
-      return <p>No movies found</p>;
-    }
-
-    return movies.map((m) => {
-      const isDownloaded = downloadedIds.includes(m._id);
-
-      return (
-        <div
-          key={m._id}
-          style={{ border: "1px solid", margin: "10px", padding: "10px" }}
-        >
-          <h3>{m.title}</h3>
-
-          {/* ✅ ALL OPTIONS ALWAYS VISIBLE */}
-          <Link to={`/movie/${m._id}`}>View</Link> |{" "}
-          <Link to={`/movie/update/${m._id}`}>Edit</Link> |{" "}
-          <button onClick={() => handleDelete(m._id)}>Delete</button>
-
-          <br />
-
-          <button onClick={() => handleWatch(m._id)}>Watch</button>
-
-          {/* ✅ DOWNLOAD BUTTON FIX */}
-          <button
-            onClick={() => handleDownload(m._id)}
-            disabled={isDownloaded}
-          >
-            {isDownloaded ? "Downloaded ✅" : "Download"}
-          </button>
-        </div>
-      );
-    });
-  }, [movies, downloadedIds]); // ✅ IMPORTANT dependency
+    alert(res.data.message || "Downloaded ✅");
+  } catch (err) {
+    console.log(err);
+    alert("Download failed");
+  }
+};
 
   return (
-    <div>
-      <h2>Movies</h2>
+    <div className="yt-container">
 
-      <Link to="/movie/create">Add Movie</Link>
-      <br />
-      <Link to="/downloads">My Downloads</Link>
+      {/* NAVBAR */}
+      <div className="yt-navbar">
+        <h2 className="yt-logo">YouTube</h2>
 
-      {/* ✅ UI always renders */}
-      {movieList}
+        <div className="yt-links">
+          <Link to="/">Home</Link>
+          <Link to="/movie/create">Upload</Link>
+          <Link to="/downloads">Library</Link>
+          <Link to="/history">History</Link>
+        </div>
+      </div>
 
-      {nextPage && (
-        <button onClick={() => fetchMovies(nextPage)}>Next</button>
+      {/* SEARCH */}
+      <input
+        type="text"
+        placeholder="Search movies..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          fetchMovies(1, e.target.value);
+        }}
+        className="yt-search"
+      />
+
+      {/* CLEAR FILTER */}
+      {categoryId && (
+        <button
+          onClick={() => navigate("/")}
+          className="yt-clear"
+        >
+          ❌ Clear Category
+        </button>
       )}
+
+      {/* MOVIE GRID */}
+      <div className="yt-grid">
+        {movies.map((m) => (
+          <div className="yt-card" key={m._id}>
+
+            <div className="yt-thumbnail">
+              <img
+                src={m.poster || noImage}
+                alt={m.title}
+                onError={(e) => (e.target.src = noImage)}
+              />
+
+              <div className="yt-hover">
+                <button onClick={() => handleWatch(m._id)}>
+                  ▶ Play
+                </button>
+
+                <button onClick={() => handleDownload(m._id)}>
+                  ⬇ Download
+                </button>
+              </div>
+            </div>
+
+            <div className="yt-info">
+              <h4>{m.title}</h4>
+
+              <div className="yt-actions">
+                <Link to={`/movie/${m._id}`}>Details</Link>
+                <Link to={`/movie/update/${m._id}`}>Edit</Link>
+              </div>
+            </div>
+
+          </div>
+        ))}
+      </div>
+
+      {/* PAGINATION */}
+      <div className="yt-pagination">
+        <button
+          disabled={!prevPage}
+          onClick={() => fetchMovies(prevPage, search)}
+        >
+          ⬅ Prev
+        </button>
+
+        <span>Page {page}</span>
+
+        <button
+          disabled={!nextPage}
+          onClick={() => fetchMovies(nextPage, search)}
+        >
+          Next ➡
+        </button>
+      </div>
+
     </div>
   );
 };

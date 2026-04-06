@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { loginUser } from "../api/api";
+import "./auth.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const emailRef = useRef(); 
+  const emailRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +23,7 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userId", res.data.data._id);
 
-      alert("Login successful");
+      alert("✅ Login successful");
       navigate(`/profile/${res.data.data._id}`);
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
@@ -30,26 +31,38 @@ const Login = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Login</h2>
+    <div className="auth-container">
+      <div className="auth-card">
 
-      <input
-        ref={emailRef}
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
+        <h2 className="auth-title">Login</h2>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
+        <input
+          ref={emailRef}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <button onClick={handleLogin}>Login</button>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button onClick={handleLogin}>
+          Login
+        </button>
+
+        {/* ✅ FIXED */}
+        <p className="auth-link">
+          Don't have an account?{" "}
+          <span onClick={() => navigate("/register")}>
+            Register
+          </span>
+        </p>
+
+      </div>
     </div>
   );
 };
