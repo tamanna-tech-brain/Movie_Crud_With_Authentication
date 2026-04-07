@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getHistory } from "../api/api";
 import noImage from "../assets/no-image.jpg";
+import "./history.css";
 
 const History = () => {
   const [history, setHistory] = useState([]);
@@ -35,10 +36,13 @@ const History = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Watch History</h2>
+    <div className="history-container">
 
+      <h2 className="history-title">🕒 Watch History</h2>
+
+      {/* 🔍 SEARCH */}
       <input
+        className="history-search"
         placeholder="Search history..."
         value={search}
         onChange={(e) => {
@@ -48,30 +52,50 @@ const History = () => {
         }}
       />
 
-      <div>
-       {history.map((h) => (
-  <div key={h._id}>
-    <img
-      src={h.movieId?.poster || noImage}
-      alt={h.movieId?.title}
-      width="120"
-    />
-    <h4>{h.movieId?.title}</h4>
-  </div>
-))}
+      {/* GRID */}
+      <div className="history-grid">
+        {history.map((h) => (
+          <div className="history-card" key={h._id}>
+
+            <div className="history-img">
+              <img
+                src={h.movieId?.poster || noImage}
+                alt={h.movieId?.title}
+              />
+
+              {/* HOVER */}
+              <div className="history-hover">
+                <button>▶ Watch Again</button>
+              </div>
+            </div>
+
+            <div className="history-info">
+              <h4>{h.movieId?.title}</h4>
+            </div>
+
+          </div>
+        ))}
       </div>
 
-      <div>
-        <button disabled={!prevPage} onClick={() => fetchHistory(prevPage, search)}>
-          Prev
+      {/* PAGINATION */}
+      <div className="history-pagination">
+        <button
+          disabled={!prevPage}
+          onClick={() => fetchHistory(prevPage, search)}
+        >
+          ⬅ Prev
         </button>
 
-        <span>{page}</span>
+        <span>Page {page}</span>
 
-        <button disabled={!nextPage} onClick={() => fetchHistory(nextPage, search)}>
-          Next
+        <button
+          disabled={!nextPage}
+          onClick={() => fetchHistory(nextPage, search)}
+        >
+          Next ➡
         </button>
       </div>
+
     </div>
   );
 };

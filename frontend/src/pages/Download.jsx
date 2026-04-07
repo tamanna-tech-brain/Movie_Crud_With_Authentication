@@ -6,24 +6,25 @@ import "./download.css";
 const Download = () => {
   const [downloads, setDownloads] = useState([]);
   const [page, setPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
 
   const userId = localStorage.getItem("userId");
 
-  const fetchDownloads = async (pg = 1, searchText = "") => {
+  const fetchDownloads = async () => {
     if (!userId) return;
 
     try {
-      const res = await getUserDownloads(userId, pg, searchText);
-
+      const res = await getUserDownloads(userId, page, search);
       const data = res.data;
 
       setDownloads(data.data || []);
-      setPage(data.page || 1);
-      setNextPage(data.nextPage || null);
-      setPrevPage(data.prevPage || null);
+      setTotalPages(data.totalPages || 1);
+
+      // ✅ AUTO FIX PAGE IF INVALID
+      if (page > data.totalPages) {
+        setPage(data.totalPages);
+      }
 
     } catch (err) {
       console.error("Download error:", err);
@@ -32,45 +33,59 @@ const Download = () => {
   };
 
   useEffect(() => {
-    fetchDownloads(1, "");
-  }, []);
+    fetchDownloads();
+  }, [page, search]);
 
   return (
     <div className="download-container">
       <h2>📥 My Downloads</h2>
 
+      {/* SEARCH */}
       <input
         placeholder="Search downloads..."
         value={search}
         onChange={(e) => {
-          const val = e.target.value;
-          setSearch(val);
-          fetchDownloads(1, val);
+          setSearch(e.target.value);
+          setPage(1); // ✅ reset page
         }}
       />
 
+      {/* GRID */}
       <div className="download-grid">
-        {downloads.map((d) => (
-  <div key={d._id} className="download-card">
-    <img
-      src={d.movie?.poster || noImage}   // ✅ FIX
-      alt={d.movie?.title}
-      onError={(e) => (e.target.src = noImage)}
-    />
-    <h4>{d.movie?.title}</h4>           // ✅ FIX
-  </div>
-))}
+        {downloads.length === 0 ? (
+          <p>No downloads found</p>
+        ) : (
+          downloads.map((d) => (
+            <div key={d._id} className="download-card">
+              <img
+                src={d.movie?.poster || noImage}
+                alt={d.movie?.title}
+                onError={(e) => (e.target.src = noImage)}
+              />
+              <h4>{d.movie?.title || "No title"}</h4>
+            </div>
+          ))
+        )}
       </div>
 
-      <div>
-        <button disabled={!prevPage} onClick={() => fetchDownloads(prevPage, search)}>
-          Prev
+      {/* PAGINATION */}
+      <div className="download-pagination">
+        <button
+          disabled={page <= 1}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
+          ⬅ Prev
         </button>
 
-        <span>{page}</span>
+        <span>
+          Page {page} / {totalPages}
+        </span>
 
-        <button disabled={!nextPage} onClick={() => fetchDownloads(nextPage, search)}>
-          Next
+        <button
+          disabled={page >= totalPages}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next ➡
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:3000/api", // ✅ FIXED
+  baseURL: "http://localhost:3000/api", // ✅ FIXED (ADD /api HERE)
   headers: {
     "Content-Type": "application/json",
   },
@@ -15,6 +15,7 @@ export const loginUser = (data) =>
   API.post("/auth/login", data);
 
 // ================= USER =================
+
 export const getUserById = (id) =>
   API.get(`/user/get/${id}`);
 
@@ -44,8 +45,8 @@ export const createCategory = (data) =>
 export const getCategoryById = (id) =>
   API.get(`/category/get/${id}`);
 
-export const getCategories = (page = 1) =>
-  API.get(`/category/get?page=${page}`);
+export const getCategories = (page = 1, search = "") =>
+  API.get(`/category/get?page=${page}&search=${search}`);
 
 export const updateCategory = (id, data) =>
   API.put(`/category/update/${id}`, data);
@@ -53,20 +54,12 @@ export const updateCategory = (id, data) =>
 export const deleteCategory = (id) =>
   API.delete(`/category/delete/${id}`);
 
-// Movies by category
-export const getMoviesByCategory = (categoryId, page = 1, search = "") =>
-  API.get(`/movie/get`, {
-    params: { category: categoryId, page, search },
-  });
-
 // ================= MOVIE =================
 export const createMovie = (data) =>
   API.post("/movie/create", data);
 
 export const getMovies = (page = 1, search = "") =>
-  API.get(`/movie/get`, {
-    params: { page, search },
-  });
+  API.get(`/movie/get?page=${page}&search=${search}`);
 
 export const getMovieById = (id) =>
   API.get(`/movie/get/${id}`);
@@ -76,6 +69,12 @@ export const updateMovie = (id, data) =>
 
 export const deleteMovie = (id) =>
   API.delete(`/movie/delete/${id}`);
+
+// Movies by category
+export const getMoviesByCategory = (categoryId, page = 1, search = "") =>
+  API.get(`/movie/get`, {
+    params: { category: categoryId, page, search },
+  });
 
 // ================= HISTORY =================
 export const watchMovie = (movieId, data) =>
@@ -91,6 +90,4 @@ export const downloadMovie = (movieId, data) =>
   API.post(`/download/download/${movieId}`, data);
 
 export const getUserDownloads = (userId, page = 1, search = "") =>
-  API.get(`/download/${userId}`, {
-    params: { page, search },
-  });
+  API.get(`/download/${userId}?page=${page}&search=${search}`);

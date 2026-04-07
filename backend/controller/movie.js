@@ -33,7 +33,7 @@ export async function createMovie(req, res) {
 export async function getMovies(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 6;
+    const limit = 2;
     const search = req.query.search || "";
     const category = req.query.category;
 
@@ -45,7 +45,7 @@ export async function getMovies(req, res) {
 
     // ✅ CATEGORY FILTER FIX
     if (category) {
-      query.categoryId = category;
+      query.categoryId = { $in: [category] };
     }
 
     const totalMovies = await moviemodel.countDocuments(query);

@@ -16,6 +16,11 @@ export const watchMovie = async (req, res) => {
     userId: req.body.userId,
     movieId
 });
+const existing = await historymodel.findOne({ userId, movieId });
+
+if (existing) {
+  return res.json({ message: "Already watched" });
+}
 
 return res.status(201).json({
   success: true,
