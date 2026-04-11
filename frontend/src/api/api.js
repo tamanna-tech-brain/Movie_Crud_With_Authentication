@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:3000/api", // ✅ FIXED (ADD /api HERE)
+  baseURL: "http://localhost:3000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -80,7 +80,7 @@ export const getMoviesByCategory = (categoryId, page = 1, search = "") =>
 
 export const watchMovie = (movieId, body) =>
   API.post(`/history/watch/${movieId}`, {
-    movieId,     // ✅ ADD THIS (VERY IMPORTANT)
+    movieId,     
     ...body
   });
 
@@ -90,7 +90,6 @@ export const downloadMovie = (movieId, data) =>
 export const getDownloads = (userId, page = 1, search = "") =>
   API.get(`/downloads/${userId}?page=${page}&search=${search}`);
 
-// ✅ GET HISTORY
 export const getHistory = (userId, page, search) =>
   API.get(`/history/${userId}?page=${page}&search=${search}`);
 

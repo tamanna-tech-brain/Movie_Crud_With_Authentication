@@ -43,7 +43,6 @@ export async function getMovies(req, res) {
       title: { $regex: search, $options: "i" }
     };
 
-    // ✅ CATEGORY FILTER FIX
     if (category) {
       query.categoryId = { $in: [category] };
     }

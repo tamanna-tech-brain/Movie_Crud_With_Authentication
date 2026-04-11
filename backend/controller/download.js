@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import downloadmodel from "../models/downloads.js";
 
-// ================= DOWNLOAD MOVIE =================
 export const downloadMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
@@ -44,7 +43,7 @@ export const getDownloads = async (req, res) => {
           from: "movies",
           localField: "movieId",
           foreignField: "_id",
-          as: "movieId" // ✅ IMPORTANT
+          as: "movieId" // 
         }
       },
       { $unwind: "$movieId" }

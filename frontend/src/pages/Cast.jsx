@@ -39,7 +39,6 @@ const Cast = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6">
 
-      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">🎭 Cast</h2>
 
@@ -51,7 +50,6 @@ const Cast = () => {
         </Link>
       </div>
 
-      {/* SEARCH */}
       <input
         type="text"
         placeholder="Search cast..."
@@ -63,7 +61,6 @@ const Cast = () => {
         className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
       />
 
-      {/* GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {castList.length === 0 ? (
           <p className="text-center col-span-full text-gray-400">

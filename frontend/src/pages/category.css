@@ -81,7 +81,6 @@
   border-radius: 5px;
 }
 
-/* INFO */
 .cat-info {
   padding: 10px;
 }
@@ -95,7 +94,6 @@
   color: #aaa;
 }
 
-/* ACTIONS */
 .cat-actions {
   display: flex;
   justify-content: space-between;

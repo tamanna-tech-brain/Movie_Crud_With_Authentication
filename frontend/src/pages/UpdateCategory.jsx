@@ -9,7 +9,6 @@ const UpdateCategory = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  // ✅ Fetch existing data
   useEffect(() => {
     getCategoryById(id).then((res) => {
       const data = res.data.data;
@@ -18,7 +17,6 @@ const UpdateCategory = () => {
     });
   }, []);
 
-  // ✅ Update
   const handleUpdate = async () => {
     try {
       await updateCategory(id, { name, description });

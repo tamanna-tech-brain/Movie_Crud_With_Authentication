@@ -24,7 +24,6 @@ const Movies = () => {
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
 
-  // ✅ FETCH MOVIES
   const fetchMovies = async (pg = 1, searchText = "") => {
     try {
       setLoading(true);
@@ -55,7 +54,6 @@ const Movies = () => {
     }
   }, [categoryId, userId]);
 
-  // ✅ WATCH
  const handleWatch = async (movieId) => {
   try {
     console.log("CLICKED WATCH:", movieId);
@@ -75,7 +73,6 @@ const Movies = () => {
   }
 };
 
-  // ✅ DOWNLOAD
 const handleDownload = async (movieId) => {
   try {
     const res = await downloadMovie(movieId, { userId });
@@ -95,13 +92,11 @@ const handleDownload = async (movieId) => {
   }
 };
 
-  // ✅ DELETE
   const handleDelete = async (id) => {
     await deleteMovie(id);
     fetchMovies(page, search);
   };
 
-  // ✅ AUTH UI (NO HOOK BREAK)
   if (!userId) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-900 to-black text-white">

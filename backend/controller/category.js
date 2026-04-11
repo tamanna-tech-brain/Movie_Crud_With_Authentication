@@ -35,18 +35,14 @@ export async function getCategory(req, res) {
     const search = req.query.search || "";
 
     const skip = (page - 1) * limit;
-
-    // ✅ SEARCH FILTER
     const query = {
       name: { $regex: search, $options: "i" }
     };
 
-    // ✅ TOTAL COUNT (WITH SEARCH)
     const totalCategories = await categorymodel.countDocuments(query);
 
     const totalPages = Math.ceil(totalCategories / limit);
 
-    // ✅ FETCH DATA
     const categories = await categorymodel
       .find(query)
       .skip(skip)

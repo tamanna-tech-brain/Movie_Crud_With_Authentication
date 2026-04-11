@@ -43,12 +43,10 @@ const Downloads = () => {
   return (
     <div className="p-6 text-white">
 
-      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">⬇ Downloads</h2>
       </div>
 
-      {/* SEARCH */}
       <input
         type="text"
         placeholder="Search downloads..."
@@ -102,7 +100,6 @@ const Downloads = () => {
             ))}
           </div>
 
-          {/* EMPTY STATE */}
           {downloads.length === 0 && (
             <p className="text-center mt-10 text-gray-400">
               No downloads found
@@ -111,7 +108,6 @@ const Downloads = () => {
         </>
       )}
 
-      {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-8">
         <button
           disabled={!prevPage}

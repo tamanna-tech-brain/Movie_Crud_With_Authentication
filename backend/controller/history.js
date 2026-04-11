@@ -37,13 +37,11 @@ export const getHistory = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // ✅ GET DATA WITH POPULATE
     const allHistory = await historymodel
       .find({ userId })
       .populate("movieId")
       .sort({ createdAt: -1 });
 
-    // ✅ SEARCH
     const filtered = search
       ? allHistory.filter(h =>
           h.movieId?.title?.toLowerCase().includes(search.toLowerCase())

@@ -11,7 +11,6 @@ const Profile = () => {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Fetch user
   const fetchUser = async () => {
     try {
       const res = await getUserById(id);
@@ -27,16 +26,15 @@ const Profile = () => {
     fetchUser();
   }, []);
 
-  // ✅ Update user
   const handleUpdate = async () => {
     try {
       const res = await updateUserById(id, {
         username,
         email,
       });
-      setUser(res.data.data); // ✅ update UI instantly
+      setUser(res.data.data); 
     alert("Profile updated");
-      fetchUser(); // refresh data
+      fetchUser(); 
        navigate(`/profile/${id}`);
     } catch (error) {
       alert(error.response?.data?.message || "Update failed");

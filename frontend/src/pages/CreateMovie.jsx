@@ -18,7 +18,6 @@ const CreateMovie = () => {
   const [categories, setCategories] = useState([]);
   const [casts, setCasts] = useState([]);
 
-  // ✅ LOAD ALL CATEGORY + CAST (ALL PAGES)
   useEffect(() => {
     titleRef.current.focus();
 
@@ -27,7 +26,6 @@ const CreateMovie = () => {
         let allCategories = [];
         let allCasts = [];
 
-        // 🔹 FETCH ALL CATEGORIES
         let page = 1;
         let nextPage = true;
 
@@ -38,7 +36,6 @@ const CreateMovie = () => {
           page = nextPage;
         }
 
-        // 🔹 FETCH ALL CASTS
         page = 1;
         nextPage = true;
 
@@ -61,19 +58,16 @@ const CreateMovie = () => {
     fetchAllData();
   }, []);
 
-  // ✅ HANDLE CATEGORY
   const handleCategoryChange = (e) => {
     const values = Array.from(e.target.selectedOptions, (o) => o.value);
     setCategoryIds(values);
   };
 
-  // ✅ HANDLE CAST
   const handleCastChange = (e) => {
     const values = Array.from(e.target.selectedOptions, (o) => o.value);
     setCastIds(values);
   };
 
-  // ✅ SUBMIT
   const handleSubmit = async () => {
     try {
       const userId = localStorage.getItem("userId");
@@ -149,7 +143,6 @@ const CreateMovie = () => {
           className="input"
         /> 
 
-        {/* ✅ CATEGORY */}
         <label>Categories</label>
         <select multiple onChange={handleCategoryChange} className="select">
           {categories.map((c) => (
@@ -157,7 +150,6 @@ const CreateMovie = () => {
           ))}
         </select>
 
-        {/* ✅ CAST */}
         <label>Cast</label>
         <select multiple onChange={handleCastChange} className="select">
           {casts.map((c) => (
@@ -170,7 +162,6 @@ const CreateMovie = () => {
         </button>
       </div>
 
-      {/* ✅ STYLE */}
       <style>{`
         .input {
           width: 100%;

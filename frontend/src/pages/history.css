@@ -59,7 +59,7 @@
   opacity: 0;
   transition: 0.3s;
 
-  pointer-events: none; /* ✅ prevents blocking clicks */
+  pointer-events: none;
 }
 
 .history-card:hover .history-hover {
@@ -68,7 +68,7 @@
 
 /* BUTTON */
 .history-hover button {
-  pointer-events: auto; /* ✅ button clickable */
+  pointer-events: auto;
   background: red;
   border: none;
   padding: 8px 12px;
@@ -94,7 +94,7 @@
   gap: 15px;
 
   position: relative;
-  z-index: 999; /* ✅ ensures clickable */
+  z-index: 999; 
 }
 
 .history-pagination button {
