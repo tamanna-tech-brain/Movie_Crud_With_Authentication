@@ -77,17 +77,20 @@ export const getMoviesByCategory = (categoryId, page = 1, search = "") =>
   });
 
 // ================= HISTORY =================
-export const watchMovie = (movieId, data) =>
-  API.post(`/history/watch/${movieId}`, data);
 
-export const getHistory = (userId, page = 1, search = "") =>
-  API.get(`/history/get/${userId}`, {
-    params: { page, search },
+export const watchMovie = (movieId, body) =>
+  API.post(`/history/watch/${movieId}`, {
+    movieId,     // ✅ ADD THIS (VERY IMPORTANT)
+    ...body
   });
 
-// ================= DOWNLOAD =================
 export const downloadMovie = (movieId, data) =>
-  API.post(`/download/download/${movieId}`, data);
+  API.post(`/downloads/${movieId}`, data);
 
-export const getUserDownloads = (userId, page = 1, search = "") =>
-  API.get(`/download/${userId}?page=${page}&search=${search}`);
+export const getDownloads = (userId, page = 1, search = "") =>
+  API.get(`/downloads/${userId}?page=${page}&search=${search}`);
+
+// ✅ GET HISTORY
+export const getHistory = (userId, page, search) =>
+  API.get(`/history/${userId}?page=${page}&search=${search}`);
+

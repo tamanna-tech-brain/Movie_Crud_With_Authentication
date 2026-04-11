@@ -70,10 +70,11 @@ export async function login(req, res) {
 })
     
     res.status(200).json({
-      success: true,
-      data: user,
-      message: "User logged In successfully"
-    });
+  success: true,
+  data: user,
+  token: accessToken,
+  message: "User logged In successfully"
+});
 
   } catch (error) {
     res.status(400).json({

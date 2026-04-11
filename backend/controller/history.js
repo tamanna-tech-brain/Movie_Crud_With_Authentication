@@ -1,89 +1,70 @@
 import mongoose from "mongoose";
-import historymodel from "../models/history.js"
-import moviemodel from "../models/movie.js"
+import historymodel from "../models/history.js";
+
 export const watchMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
     const { userId } = req.body;
-    const movie = await moviemodel.findById(movieId);
-     if (!movie) {
-      return res.status(404).json({
-        success: false,
-        message: "Movie not found"
-      });
+
+    console.log("WATCH API HIT:", movieId, userId);
+
+    if (!userId) {
+      return res.status(400).json({ message: "UserId required" });
     }
+
     const history = await historymodel.create({
-    userId: req.body.userId,
-    movieId
-});
-const existing = await historymodel.findOne({ userId, movieId });
-
-if (existing) {
-  return res.json({ message: "Already watched" });
-}
-
-return res.status(201).json({
-  success: true,
-  data: history,
-  message: "Movie watched"
+  userId: new mongoose.Types.ObjectId(userId),
+  movieId: new mongoose.Types.ObjectId(movieId)
 });
 
-  } catch (error) {
-    res.status(500).json({ 
-        error: error.message });
-  }
-};
-
-export const getHistory = async (req, res) => {
-  try {
-     const { userId } = req.params;
-     const {
-      page= 1,
-      limit= 2,
-      search ="",
-     } = req.query;
-     const skip = (page - 1) * limit;
-
-    const history = await historymodel.aggregate([
-      {
-        $match: {
-          userId: new mongoose.Types.ObjectId(userId)
-        }
-      },
-      {
-        $lookup: {
-          from: "movies",
-          localField: "movieId",
-          foreignField: "_id",
-          as: "movieId"
-        }
-      },
-      {
-        $unwind: "$movieId"},
-       {
-        $match: {
-          "movieId.title": { $regex: search, $options: "i" }
-        }
-      }, 
-
-      { $skip: skip },
-      { $limit: Number(limit) }
-    ]);
-     const totalHistory = await historymodel.countDocuments({
-  userId: new mongoose.Types.ObjectId(userId)
-});
-
-    return res.json({
+    res.json({
       success: true,
-      data: history,
-      page: Number(page),
-      totalPages: Math.ceil(totalHistory / limit),
-      nextPage: page < Math.ceil(totalHistory / limit) ? Number(page + 1) : null,
-      prevPage: page > 1 ? Number(page - 1) : null,
-      totalHistory
+      data: history
     });
 
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("WATCH ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+export const getHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    let { page = 1, limit = 2, search = "" } = req.query;
+
+    page = Number(page);
+    limit = Number(limit);
+
+    const skip = (page - 1) * limit;
+
+    // ✅ GET DATA WITH POPULATE
+    const allHistory = await historymodel
+      .find({ userId })
+      .populate("movieId")
+      .sort({ createdAt: -1 });
+
+    // ✅ SEARCH
+    const filtered = search
+      ? allHistory.filter(h =>
+          h.movieId?.title?.toLowerCase().includes(search.toLowerCase())
+        )
+      : allHistory;
+
+    const total = filtered.length;
+
+    const paginated = filtered.slice(skip, skip + limit);
+
+    res.json({
+      success: true,
+      data: paginated,
+      page,
+      totalPages: Math.ceil(total / limit),
+      nextPage: page < Math.ceil(total / limit) ? page + 1 : null,
+      prevPage: page > 1 ? page - 1 : null,
+      totalHistory: total
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

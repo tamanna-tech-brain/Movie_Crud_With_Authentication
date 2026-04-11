@@ -1,13 +1,12 @@
 import { Router } from "express";
-import {
-  downloadMovie,
-  getUserDownloads
-} from "../controller/download.js";
+import { downloadMovie, getDownloads } from "../controller/download.js";
 
 const downloadRouter = Router();
 
-downloadRouter.post("/download/:movieId", downloadMovie);
+// download movie
+downloadRouter.post("/:movieId", downloadMovie);
 
-downloadRouter.get("/:userId", getUserDownloads);
+// get all downloads (history + downloads UI)
+downloadRouter.get("/:userId", getDownloads);
 
 export default downloadRouter;

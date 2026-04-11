@@ -4,34 +4,32 @@ import {
   getMoviesByCategory,
   watchMovie,
   downloadMovie,
+  deleteMovie
 } from "../api/api";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import "./movies.css";
+import { useLocation, useNavigate } from "react-router-dom";
 import noImage from "../assets/no-image.jpg";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ NEW
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const location = useLocation();
   const navigate = useNavigate();
 
+  const userId = localStorage.getItem("userId");
+
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
 
-  const userId = localStorage.getItem("userId");
-
-  // ✅ FETCH MOVIES (SAFE)
+  // ✅ FETCH MOVIES
   const fetchMovies = async (pg = 1, searchText = "") => {
     try {
       setLoading(true);
 
       let res;
-
       if (categoryId) {
         res = await getMoviesByCategory(categoryId, pg, searchText);
       } else {
@@ -41,146 +39,174 @@ const Movies = () => {
       const data = res.data;
 
       setMovies(data.data || []);
-      setPage(data.page || 1);
-      setNextPage(data.nextPage || null);
-      setPrevPage(data.prevPage || null);
+      setPage(pg);
+      setHasMore(data.data && data.data.length > 0);
 
     } catch (err) {
       console.log(err);
-      alert("Error fetching movies");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ INITIAL LOAD
   useEffect(() => {
-    fetchMovies(1, "");
-  }, [categoryId]);
-
-  // ✅ DEBOUNCE SEARCH (NO FLUCTUATION)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchMovies(1, search);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [search]);
+    if (userId) {
+      fetchMovies(1, "");
+    }
+  }, [categoryId, userId]);
 
   // ✅ WATCH
-  const handleWatch = async (movieId) => {
-    try {
-      const userId = localStorage.getItem("userId");
+ const handleWatch = async (movieId) => {
+  try {
+    console.log("CLICKED WATCH:", movieId);
 
-      if (!userId) {
-        alert("Please login first");
-        return;
-      }
+    const res = await watchMovie(movieId, { userId });
 
-      await watchMovie(movieId, { userId });
+    console.log("FULL RESPONSE:", res);
+    console.log("WATCH SUCCESS DATA:", res.data);
 
-      alert("▶ Watching...");
-    } catch (err) {
-      console.log(err);
-      alert("Watch failed");
-    }
-  };
+    alert(res.data.message || "Watched successfully 🎬");
+
+  } catch (err) {
+    console.error("WATCH ERROR FULL:", err);
+    console.error("WATCH ERROR RESPONSE:", err.response?.data);
+
+    alert(err.response?.data?.message || "Watch failed");
+  }
+};
 
   // ✅ DOWNLOAD
-  const handleDownload = async (movieId) => {
-    try {
-      const userId = localStorage.getItem("userId");
+const handleDownload = async (movieId) => {
+  try {
+    const res = await downloadMovie(movieId, { userId });
 
-      if (!userId) {
-        alert("Please login first");
-        return;
-      }
+    alert(res.data.message);
 
-      const res = await downloadMovie(movieId, { userId, movieId });
+  } catch (err) {
+    const msg = err.response?.data?.message;
 
-      alert(res.data.message || "Downloaded ✅");
-    } catch (err) {
-      console.log(err);
-      alert("Download failed");
+    if (msg?.includes("duplicate")) {
+      alert("Already downloaded ✅");
+    } else {
+      alert(msg || "Download failed");
     }
+
+    console.error("DOWNLOAD ERROR:", err.response?.data);
+  }
+};
+
+  // ✅ DELETE
+  const handleDelete = async (id) => {
+    await deleteMovie(id);
+    fetchMovies(page, search);
   };
 
+  // ✅ AUTH UI (NO HOOK BREAK)
+  if (!userId) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-900 to-black text-white">
+        <h1 className="text-4xl font-bold mb-6">🎬 Movie App</h1>
+        <p className="text-gray-400 mb-8">
+          Please login or register to continue
+        </p>
+
+        <div className="flex gap-6">
+          <button
+            onClick={() => navigate("/login")}
+            className="px-6 py-3 bg-red-600 rounded-lg hover:bg-red-700 transition"
+          >
+            Login
+          </button>
+
+          <button
+            onClick={() => navigate("/register")}
+            className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
+          >
+            Register
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="yt-container">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
 
-      {/* NAVBAR */}
-      <div className="yt-navbar">
-        <h2 className="yt-logo">YouTube</h2>
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">🎬 Movies</h2>
 
-        <div className="yt-links">
-          <Link to="/">Home</Link>
-          <Link to="/movie/create">Upload</Link>
-          <Link to="/downloads">Library</Link>
-          <Link to="/history">History</Link>
+        <div className="flex gap-3">
+          {/* ✅ CREATE MOVIE (FOR ALL USERS) */}
+          <button
+            onClick={() => navigate("/movie/create")}
+            className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition"
+          >
+            ➕ Create Movie
+          </button>
+
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate("/");
+            }}
+            className="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition"
+          >
+            Logout
+          </button>
         </div>
       </div>
 
       {/* SEARCH */}
       <input
-        type="text"
-        placeholder="Search movies..."
+        placeholder="🔍 Search movies..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="yt-search"
+        onChange={(e) => {
+          setSearch(e.target.value);
+          fetchMovies(1, e.target.value);
+        }}
+        className="w-full mb-6 p-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
       />
 
-      {/* CLEAR FILTER */}
-      {categoryId && (
-        <button onClick={() => navigate("/")} className="yt-clear">
-          ❌ Clear Category
-        </button>
-      )}
-
-      {/* LOADING */}
+      {/* GRID */}
       {loading ? (
-        <h2 style={{ textAlign: "center" }}>Loading...</h2>
+        <h2 className="text-center">Loading...</h2>
       ) : (
-        <div className="yt-grid">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {movies.map((m) => (
-            <div className="yt-card" key={m._id}>
+            <div
+              key={m._id}
+              className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition duration-300"
+            >
+              <img
+                src={m.poster || noImage}
+                onError={(e) => (e.target.src = noImage)}
+                className="w-full h-44 object-cover"
+              />
 
-              <div className="yt-thumbnail">
-                <img
-                  src={m.poster || noImage}
-                  alt={m.title}
-                  onError={(e) => (e.target.src = noImage)}
-                />
+              <div className="p-3">
+                <h4 className="font-semibold truncate">{m.title}</h4>
 
-                <div className="yt-hover">
-                  <button onClick={() => handleWatch(m._id)}>
-                    ▶ Play
-                  </button>
-
-                  <button onClick={() => handleDownload(m._id)}>
-                    ⬇ Download
-                  </button>
+                <div className="flex justify-between mt-3 text-lg">
+                  <button onClick={() => handleWatch(m._id)}>▶</button>
+                  <button onClick={() => handleDownload(m._id)}>⬇</button>
+                  <button onClick={() => handleDelete(m._id)}>🗑</button>
+                  <button onClick={() => navigate(`/movie/update/${m._id}`)}>
+    ✏️
+  </button>
                 </div>
               </div>
-
-              <div className="yt-info">
-                <h4>{m.title}</h4>
-
-                <div className="yt-actions">
-                  <Link to={`/movie/${m._id}`}>Details</Link>
-                  <Link to={`/movie/update/${m._id}`}>Edit</Link>
-                </div>
-              </div>
-
             </div>
           ))}
         </div>
       )}
 
       {/* PAGINATION */}
-      <div className="yt-pagination">
+      <div className="flex justify-center items-center gap-4 mt-8">
         <button
-          disabled={!prevPage}
-          onClick={() => fetchMovies(prevPage, search)}
+          disabled={page === 1}
+          onClick={() => fetchMovies(page - 1, search)}
+          className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
           ⬅ Prev
         </button>
@@ -188,13 +214,14 @@ const Movies = () => {
         <span>Page {page}</span>
 
         <button
-          disabled={!nextPage}
-          onClick={() => fetchMovies(nextPage, search)}
+          disabled={!hasMore}
+          onClick={() => fetchMovies(page + 1, search)}
+          className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
           Next ➡
         </button>
       </div>
-
+      
     </div>
   );
 };

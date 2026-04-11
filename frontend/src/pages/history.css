@@ -10,12 +10,22 @@
   margin-bottom: 20px;
 }
 
+.history-search {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: none;
+}
+
+/* GRID */
 .history-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
 }
 
+/* CARD */
 .history-card {
   background: #181818;
   border-radius: 10px;
@@ -27,6 +37,7 @@
   transform: scale(1.05);
 }
 
+/* IMAGE */
 .history-img {
   position: relative;
 }
@@ -37,6 +48,7 @@
   object-fit: cover;
 }
 
+/* HOVER (FIXED - NO CLICK BLOCK) */
 .history-hover {
   position: absolute;
   inset: 0;
@@ -46,13 +58,17 @@
   align-items: center;
   opacity: 0;
   transition: 0.3s;
+
+  pointer-events: none; /* ✅ prevents blocking clicks */
 }
 
 .history-card:hover .history-hover {
   opacity: 1;
 }
 
+/* BUTTON */
 .history-hover button {
+  pointer-events: auto; /* ✅ button clickable */
   background: red;
   border: none;
   padding: 8px 12px;
@@ -61,10 +77,36 @@
   border-radius: 5px;
 }
 
+/* INFO */
 .history-info {
   padding: 10px;
 }
 
 .history-info h4 {
   font-size: 14px;
+}
+
+/* ✅ PAGINATION FIX */
+.history-pagination {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+
+  position: relative;
+  z-index: 999; /* ✅ ensures clickable */
+}
+
+.history-pagination button {
+  padding: 8px 15px;
+  border: none;
+  background: red;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.history-pagination button:disabled {
+  background: gray;
+  cursor: not-allowed;
 }

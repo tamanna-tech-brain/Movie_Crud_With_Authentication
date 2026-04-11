@@ -1,20 +1,30 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+
+// Pages
 import Movies from "./pages/Movies";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+
+// Cast
 import Cast from "./pages/Cast";
 import CreateCast from "./pages/CreateCast";
 import CastDetails from "./pages/CastDetails";
-import UpdateCast from "./pages/UpdateCast"; 
+import UpdateCast from "./pages/UpdateCast";
+
+// Category
 import Category from "./pages/Category";
 import CreateCategory from "./pages/CreateCategory";
 import CategoryDetails from "./pages/CategoryDetails";
 import UpdateCategory from "./pages/UpdateCategory";
+
+// Movie
 import CreateMovie from "./pages/CreateMovie";
 import MovieDetails from "./pages/MovieDetails";
 import UpdateMovie from "./pages/UpdateMovie";
+
+// Extra
 import History from "./pages/History";
 import Download from "./pages/Download";
 

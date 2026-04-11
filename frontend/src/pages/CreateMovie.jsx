@@ -11,7 +11,6 @@ const CreateMovie = () => {
   const [language, setLanguage] = useState("");
   const [duration, setDuration] = useState("");
   const [releaseYear, setReleaseYear] = useState("");
-  const [poster, setPoster] = useState(""); // ✅ NEW
 
   const [categoryIds, setCategoryIds] = useState([]);
   const [castIds, setCastIds] = useState([]);
@@ -19,6 +18,7 @@ const CreateMovie = () => {
   const [categories, setCategories] = useState([]);
   const [casts, setCasts] = useState([]);
 
+  // ✅ LOAD ALL CATEGORY + CAST (ALL PAGES)
   useEffect(() => {
     titleRef.current.focus();
 
@@ -27,6 +27,7 @@ const CreateMovie = () => {
         let allCategories = [];
         let allCasts = [];
 
+        // 🔹 FETCH ALL CATEGORIES
         let page = 1;
         let nextPage = true;
 
@@ -37,6 +38,7 @@ const CreateMovie = () => {
           page = nextPage;
         }
 
+        // 🔹 FETCH ALL CASTS
         page = 1;
         nextPage = true;
 
@@ -49,6 +51,7 @@ const CreateMovie = () => {
 
         setCategories(allCategories);
         setCasts(allCasts);
+
       } catch (err) {
         console.log(err);
         alert("Error loading data");
@@ -58,16 +61,19 @@ const CreateMovie = () => {
     fetchAllData();
   }, []);
 
+  // ✅ HANDLE CATEGORY
   const handleCategoryChange = (e) => {
     const values = Array.from(e.target.selectedOptions, (o) => o.value);
     setCategoryIds(values);
   };
 
+  // ✅ HANDLE CAST
   const handleCastChange = (e) => {
     const values = Array.from(e.target.selectedOptions, (o) => o.value);
     setCastIds(values);
   };
 
+  // ✅ SUBMIT
   const handleSubmit = async () => {
     try {
       const userId = localStorage.getItem("userId");
@@ -81,13 +87,13 @@ const CreateMovie = () => {
         language,
         duration: Number(duration),
         releaseYear: Number(releaseYear),
-        poster, // ✅ SEND POSTER
         categoryId: categoryIds,
         cast: castIds
       });
 
-      alert("🎉 Movie Created");
+      alert("🎉 Movie Created Successfully");
       navigate("/");
+
     } catch (err) {
       console.log(err);
       alert("Error creating movie");
@@ -110,43 +116,40 @@ const CreateMovie = () => {
       }}>
         <h2 style={{ textAlign: "center" }}>🎬 Create Movie</h2>
 
-        <input ref={titleRef} placeholder="Title"
-          onChange={(e) => setTitle(e.target.value)} className="input" />
-
-        <input placeholder="Description"
-          onChange={(e) => setDescription(e.target.value)} className="input" />
-
-        <input placeholder="Language"
-          onChange={(e) => setLanguage(e.target.value)} className="input" />
-
-        <input type="number" placeholder="Duration"
-          onChange={(e) => setDuration(e.target.value)} className="input" />
-
-        <input type="number" placeholder="Release Year"
-          onChange={(e) => setReleaseYear(e.target.value)} className="input" />
-
-        {/* ✅ POSTER INPUT */}
         <input
-          placeholder="Poster Image URL"
-          onChange={(e) => setPoster(e.target.value)}
+          ref={titleRef}
+          placeholder="Title"
+          onChange={(e) => setTitle(e.target.value)}
           className="input"
         />
 
-        {/* ✅ LIVE PREVIEW */}
-        {poster && (
-          <img
-            src={poster}
-            alt="preview"
-            style={{
-              width: "100%",
-              height: "200px",
-              objectFit: "cover",
-              borderRadius: "8px",
-              marginBottom: "10px"
-            }}
-          />
-        )}
+        <input
+          placeholder="Description"
+          onChange={(e) => setDescription(e.target.value)}
+          className="input"
+        />
 
+        <input
+          placeholder="Language"
+          onChange={(e) => setLanguage(e.target.value)}
+          className="input"
+        />
+
+        <input
+          type="number"
+          placeholder="Duration"
+          onChange={(e) => setDuration(e.target.value)}
+          className="input"
+        />
+
+        <input
+          type="number"
+          placeholder="Release Year"
+          onChange={(e) => setReleaseYear(e.target.value)}
+          className="input"
+        /> 
+
+        {/* ✅ CATEGORY */}
         <label>Categories</label>
         <select multiple onChange={handleCategoryChange} className="select">
           {categories.map((c) => (
@@ -154,6 +157,7 @@ const CreateMovie = () => {
           ))}
         </select>
 
+        {/* ✅ CAST */}
         <label>Cast</label>
         <select multiple onChange={handleCastChange} className="select">
           {casts.map((c) => (

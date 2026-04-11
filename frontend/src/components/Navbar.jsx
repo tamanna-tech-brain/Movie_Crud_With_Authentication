@@ -2,31 +2,36 @@ import { Link } from "react-router-dom";
 
 function Navbar() {
   return (
-    <div style={{
-      background: "#202020",
-      padding: "12px",
-      display: "flex",
-      gap: "15px"
-    }}>
-      <Link to="/" style={{ color: "white" }}>Movies</Link>
+    <div className="bg-gray-900 text-white flex gap-6 p-4 shadow-lg">
+      
+      <Link to="/" className="hover:text-red-400">
+        Movies
+      </Link>
 
-      <Link to="/register" style={{ color: "white" }}>Register</Link>
+      <Link to="/cast" className="hover:text-red-400">
+        Cast
+      </Link>
 
-      <Link to="/login" style={{ color: "white" }}>Login</Link>
+      <Link to="/category" className="hover:text-red-400">
+        Category
+      </Link>
 
-      <Link to="/cast" style={{ color: "white" }}>Cast</Link>
+      <Link to="/history" className="hover:text-red-400">
+        History
+      </Link>
 
-      <Link to="/cast/create" style={{ color: "white" }}>Add Cast</Link>
+      <Link to="/downloads" className="hover:text-red-400">
+        Downloads
+      </Link>
 
-      <Link to="/category" style={{ color: "white" }}>Category</Link>
+      <Link to="/login" className="hover:text-red-400">
+        Login
+      </Link>
 
-      <Link to="/category/create" style={{ color: "white" }}>Add Category</Link>
+      <Link to="/register" className="hover:text-red-400">
+        Register
+      </Link>
 
-      <Link to="/movie/create" style={{ color: "white" }}>Add Movie</Link>
-      <Link to="/history" style={{ color: "white" }}>
-  History
-</Link>
-<Link to="/downloads">My Downloads</Link>
     </div>
   );
 }

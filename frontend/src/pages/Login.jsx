@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { loginUser } from "../api/api";
-import "./auth.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,32 +14,42 @@ const Login = () => {
   }, []);
 
   const handleLogin = async () => {
-    try {
-      if (!email || !password) return alert("Fill all fields");
+  try {
+    if (!email || !password) return alert("Fill all fields");
 
-      const res = await loginUser({ email, password });
+    const res = await loginUser({ email, password });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userId", res.data.data._id);
+    console.log("LOGIN RESPONSE:", res.data);
 
-      alert("✅ Login successful");
-      navigate(`/profile/${res.data.data._id}`);
-    } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+    if (!res.data.token) {
+      alert("Login failed: No token received");
+      return;
     }
-  };
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("userId", res.data.data._id);
+
+    alert("✅ Login successful");
+
+    navigate("/");
+  } catch (error) {
+    console.log(error);
+    alert(error.response?.data?.message || "Login failed");
+  }
+};
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white">
+      <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg">
 
-        <h2 className="auth-title">Login</h2>
+        <h2 className="text-3xl font-bold text-center mb-6">Login</h2>
 
         <input
           ref={emailRef}
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full mb-4 p-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
         />
 
         <input
@@ -48,16 +57,22 @@ const Login = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-6 p-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
         />
 
-        <button onClick={handleLogin}>
+        <button
+          onClick={handleLogin}
+          className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-semibold transition"
+        >
           Login
         </button>
 
-        {/* ✅ FIXED */}
-        <p className="auth-link">
+        <p className="text-center mt-4 text-gray-400">
           Don't have an account?{" "}
-          <span onClick={() => navigate("/register")}>
+          <span
+            onClick={() => navigate("/register")}
+            className="text-red-400 cursor-pointer hover:underline"
+          >
             Register
           </span>
         </p>

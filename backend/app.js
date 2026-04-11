@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/category", categoryRouter);
-app.use("/api/download", downloadRouter);
+app.use("/api/downloads", downloadRouter);
 app.use("/api/movie", movieRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/cast", castRouter);
