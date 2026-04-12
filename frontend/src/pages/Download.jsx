@@ -11,7 +11,6 @@ const Downloads = () => {
   const [loading, setLoading] = useState(false);
   const limit = 2;
 
-  // ✅ Fetch ONLY ONCE
   const fetchDownloads = async () => {
     
     try {
@@ -29,7 +28,6 @@ const Downloads = () => {
     fetchDownloads();
   }, []);
 
-  // ✅ Apply search (movie title)
   const filteredDownloads = searchFilter(
     allDownloads,
     search,
@@ -43,7 +41,6 @@ const Downloads = () => {
       )
     : allDownloads;
 
-  // ✅ Apply pagination
   const {
     data: paginatedDownloads,
     nextPage,
@@ -66,7 +63,7 @@ const Downloads = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setPage(1); // ✅ reset page
+          setPage(1); 
         }}
         className="w-full mb-6 p-3 bg-gray-800 rounded-lg outline-none"
       />

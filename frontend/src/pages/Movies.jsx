@@ -23,7 +23,6 @@ const Movies = () => {
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
 
-  // ✅ Fetch ONLY ONCE
   const fetchMovies = async () => {
     try {
       setLoading(true);
@@ -48,14 +47,12 @@ const Movies = () => {
       fetchMovies();
   }, [categoryId]);
 
-  // ✅ Search (title)
   const filteredMovies = searchText
     ? allMovies.filter(m =>
         m.title?.toLowerCase().includes(searchText.toLowerCase())
       )
     : allMovies;
 
-  // ✅ Pagination
   const {
     data: paginatedMovies,
     nextPage,

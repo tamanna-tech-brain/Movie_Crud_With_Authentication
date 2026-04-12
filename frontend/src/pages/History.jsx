@@ -11,7 +11,6 @@ const History = () => {
   const [loading, setLoading] = useState(false);
   const limit = 2;
 
-  // ✅ Fetch ONLY ONCE
   const fetchHistory = async () => {
     try {
       setLoading(true);
@@ -28,14 +27,12 @@ const History = () => {
     fetchHistory();
   }, []);
 
-  // ✅ Custom search (nested field)
   const filteredHistory = search
     ? allHistory.filter(h =>
         h.movieId?.title?.toLowerCase().includes(search.toLowerCase())
       )
     : allHistory;
 
-  // ✅ Pagination
   const {
     data: paginatedHistory,
     nextPage,
@@ -55,7 +52,7 @@ const History = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setPage(1); // ✅ important
+          setPage(1); 
         }}
         className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500"
       />

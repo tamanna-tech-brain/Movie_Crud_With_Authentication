@@ -27,7 +27,6 @@ export async function createCategory(req, res) {
     });
 }
 }
-
 export async function getCategory(req, res) {
   try {
     const categories = await categorymodel.find();

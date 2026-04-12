@@ -32,20 +32,6 @@ AUTH_API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-AUTH_API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-
-    console.log("TOKEN SENT:", token);
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // ================= AUTH =================
 export const registerUser = (data) =>
@@ -91,7 +77,7 @@ export const getCategories = () =>
   API.get(`/category/get`);
 
 export const updateCategory = (id, data) =>
-  AUTH_API.put(`/category/update/${id}`, data); // ✅ FIXED
+  AUTH_API.put(`/category/update/${id}`, data); 
 
 export const deleteCategory = (id) =>
   AUTH_API.delete(`/category/delete/${id}`);

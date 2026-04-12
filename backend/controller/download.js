@@ -4,7 +4,7 @@ import downloadmodel from "../models/downloads.js";
 export const downloadMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
-    const userId = req.user.id; // ✅ FIX
+    const userId = req.user.id; 
 
     const newDownload = new downloadmodel({
       userId,
@@ -25,7 +25,7 @@ export const downloadMovie = async (req, res) => {
 
 export const getDownloads = async (req, res) => {
   try {
-    const userId = req.user.id; // ✅ IMPORTANT
+    const userId = req.user.id; 
 
     const downloads = await downloadmodel
       .find({ userId })

@@ -23,10 +23,8 @@ const Cast = () => {
     fetchCasts();
   }, []);
 
-  // ✅ Apply search
   const filteredCasts = searchFilter(allCasts, search, "name");
 
-  // ✅ Apply pagination
   const {
     data: paginatedCasts,
     nextPage,
@@ -34,7 +32,6 @@ const Cast = () => {
     totalPages
   } = paginate(filteredCasts, page, limit);
 
-  // ✅ Delete
   const handleDelete = async (id) => {
     try {
       await deleteCast(id);
@@ -66,7 +63,7 @@ const Cast = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setPage(1); // ✅ important
+          setPage(1); 
         }}
         className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
       />

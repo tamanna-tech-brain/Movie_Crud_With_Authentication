@@ -34,7 +34,6 @@ export async function getMovies(req, res) {
   try {
     const movies = await moviemodel.aggregate([
       
-      // 🔗 Category JOIN
       {
         $lookup: {
           from: "categories", // collection name
@@ -44,7 +43,6 @@ export async function getMovies(req, res) {
         }
       },
 
-      // 🔗 Cast JOIN
       {
         $lookup: {
           from: "casts",
@@ -54,7 +52,6 @@ export async function getMovies(req, res) {
         }
       },
 
-      // 📦 Flatten category array (optional)
       {
         $unwind: {
           path: "$category",

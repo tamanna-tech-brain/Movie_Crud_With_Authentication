@@ -9,7 +9,6 @@ const Category = () => {
   const [search, setSearch] = useState("");
   const limit = 2;
 
-  // ✅ Fetch once (NO pagination here)
   const fetchCategories = async () => {
     try {
       const res = await getCategories();
@@ -23,10 +22,8 @@ const Category = () => {
     fetchCategories();
   }, []);
 
-  // ✅ Apply search
   const filteredCategories = searchFilter(allCategories, search, "name");
 
-  // ✅ Apply pagination
   const {
     data: paginatedCategories,
     nextPage,
@@ -34,7 +31,6 @@ const Category = () => {
     totalPages
   } = paginate(filteredCategories, page, limit);
 
-  // ✅ Delete
   const handleDelete = async (id) => {
     try {
       await deleteCategory(id);
@@ -66,7 +62,7 @@ const Category = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setPage(1); // ✅ reset page
+          setPage(1); 
         }}
         className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
       />
