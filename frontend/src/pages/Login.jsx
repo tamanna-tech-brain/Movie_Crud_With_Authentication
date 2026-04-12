@@ -15,26 +15,20 @@ const Login = () => {
 
   const handleLogin = async () => {
   try {
-    if (!email || !password) return alert("Fill all fields");
-
-    const res = await loginUser({ email, password });
+    const res = await loginUser({
+      email,
+      password
+    });
 
     console.log("LOGIN RESPONSE:", res.data);
 
-    if (!res.data.token) {
-      alert("Login failed: No token received");
-      return;
-    }
-
+    // ✅ SAVE TOKEN
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("userId", res.data.data._id);
 
-    alert("✅ Login successful");
-
     navigate("/");
-  } catch (error) {
-    console.log(error);
-    alert(error.response?.data?.message || "Login failed");
+  } catch (err) {
+    console.log(err);
   }
 };
 

@@ -24,32 +24,11 @@ export async function createCast(req, res) {
 }
 export async function getCasts(req, res) {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 2;
-    const search = req.query.search || "";
-
-    const skip = (page - 1) * limit;
-
-    const query = {
-      name: { $regex: search, $options: "i" }
-    };
-
-    const totalcasts = await castmodel.countDocuments(query);
-    const totalPages = Math.ceil(totalcasts / limit);
-
-    const casts = await castmodel
-      .find(query)
-      .skip(skip)
-      .limit(limit);
+    const casts = await castmodel.find();
 
     return res.status(200).json({
       success: true,
-      data: casts,
-      page,
-      nextPage: page < totalPages ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-      totalPages,
-      totalcasts
+      data: casts
     });
 
   } catch (error) {

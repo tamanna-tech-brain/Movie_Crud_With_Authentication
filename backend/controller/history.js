@@ -4,18 +4,14 @@ import historymodel from "../models/history.js";
 export const watchMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
-    const { userId } = req.body;
+    const userId = req.user.id; // ✅ FIRST define
 
     console.log("WATCH API HIT:", movieId, userId);
 
-    if (!userId) {
-      return res.status(400).json({ message: "UserId required" });
-    }
-
     const history = await historymodel.create({
-  userId: new mongoose.Types.ObjectId(userId),
-  movieId: new mongoose.Types.ObjectId(movieId)
-});
+      userId,
+      movieId
+    });
 
     res.json({
       success: true,
@@ -24,45 +20,23 @@ export const watchMovie = async (req, res) => {
 
   } catch (err) {
     console.error("WATCH ERROR:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message });
   }
 };
+
+
 export const getHistory = async (req, res) => {
   try {
-    const { userId } = req.params;
-    let { page = 1, limit = 2, search = "" } = req.query;
+    const userId = req.user.id; // ✅ IMPORTANT
 
-    page = Number(page);
-    limit = Number(limit);
-
-    const skip = (page - 1) * limit;
-
-    const allHistory = await historymodel
+    const history = await historymodel
       .find({ userId })
-      .populate("movieId")
-      .sort({ createdAt: -1 });
+      .populate("movieId");
 
-    const filtered = search
-      ? allHistory.filter(h =>
-          h.movieId?.title?.toLowerCase().includes(search.toLowerCase())
-        )
-      : allHistory;
-
-    const total = filtered.length;
-
-    const paginated = filtered.slice(skip, skip + limit);
-
-    res.json({
-      success: true,
-      data: paginated,
-      page,
-      totalPages: Math.ceil(total / limit),
-      nextPage: page < Math.ceil(total / limit) ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-      totalHistory: total
-    });
+    res.json({ success: true, data: history });
 
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.log("HISTORY ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 };

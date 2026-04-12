@@ -32,40 +32,49 @@ export async function createMovie(req, res) {
 
 export async function getMovies(req, res) {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 2;
-    const search = req.query.search || "";
-    const category = req.query.category;
+    const movies = await moviemodel.aggregate([
+      
+      // 🔗 Category JOIN
+      {
+        $lookup: {
+          from: "categories", // collection name
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "category"
+        }
+      },
 
-    const skip = (page - 1) * limit;
+      // 🔗 Cast JOIN
+      {
+        $lookup: {
+          from: "casts",
+          localField: "cast",
+          foreignField: "_id",
+          as: "cast"
+        }
+      },
 
-    const query = {
-      title: { $regex: search, $options: "i" }
-    };
+      // 📦 Flatten category array (optional)
+      {
+        $unwind: {
+          path: "$category",
+          preserveNullAndEmptyArrays: true
+        }
+      }
 
-    if (category) {
-      query.categoryId = { $in: [category] };
-    }
+    ]);
 
-    const totalMovies = await moviemodel.countDocuments(query);
-    const totalPages = Math.ceil(totalMovies / limit);
-
-    const movies = await moviemodel
-      .find(query)
-      .skip(skip)
-      .limit(limit);
-
-    res.json({
+    res.status(200).json({
       success: true,
-      data: movies,
-      page,
-      nextPage: page < totalPages ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-      totalPages
+      data: movies
     });
 
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("MOVIE ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 }
 

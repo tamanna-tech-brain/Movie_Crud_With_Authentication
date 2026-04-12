@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react";
 import { getCasts, deleteCast } from "../api/api";
 import { Link } from "react-router-dom";
+import { paginate, searchFilter } from "../utils";
 
 const Cast = () => {
-  const [castList, setCastList] = useState([]);
+  const [allCasts, setAllCasts] = useState([]); // full data
   const [page, setPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
   const [search, setSearch] = useState("");
+  const limit = 2;
 
-  const fetchCasts = async (pg = 1, searchText = "") => {
+  // ✅ Fetch ONLY ONCE (no pagination here)
+  const fetchCasts = async () => {
     try {
-      const res = await getCasts(pg, searchText);
-      const data = res.data;
-
-      setCastList(data.data || []);
-      setPage(data.page);
-      setNextPage(data.nextPage);
-      setPrevPage(data.prevPage);
+      const res = await getCasts();
+      setAllCasts(res.data.data || []);
     } catch (err) {
       alert("Error fetching cast");
     }
@@ -27,10 +23,22 @@ const Cast = () => {
     fetchCasts();
   }, []);
 
+  // ✅ Apply search
+  const filteredCasts = searchFilter(allCasts, search, "name");
+
+  // ✅ Apply pagination
+  const {
+    data: paginatedCasts,
+    nextPage,
+    prevPage,
+    totalPages
+  } = paginate(filteredCasts, page, limit);
+
+  // ✅ Delete
   const handleDelete = async (id) => {
     try {
       await deleteCast(id);
-      fetchCasts(page, search);
+      fetchCasts(); // reload data
     } catch {
       alert("Delete failed");
     }
@@ -39,6 +47,7 @@ const Cast = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6">
 
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">🎭 Cast</h2>
 
@@ -50,24 +59,26 @@ const Cast = () => {
         </Link>
       </div>
 
+      {/* SEARCH */}
       <input
         type="text"
         placeholder="Search cast..."
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          fetchCasts(1, e.target.value);
+          setPage(1); // ✅ important
         }}
         className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
       />
 
+      {/* GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {castList.length === 0 ? (
+        {paginatedCasts.length === 0 ? (
           <p className="text-center col-span-full text-gray-400">
             No cast found
           </p>
         ) : (
-          castList.map((cast) => (
+          paginatedCasts.map((cast) => (
             <div
               key={cast._id}
               className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition duration-300"
@@ -80,7 +91,7 @@ const Cast = () => {
                   className="w-full h-56 object-cover"
                 />
 
-                {/* HOVER DELETE */}
+                {/* DELETE */}
                 <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                   <button
                     onClick={() => handleDelete(cast._id)}
@@ -115,19 +126,19 @@ const Cast = () => {
       <div className="flex justify-center items-center gap-4 mt-8">
         <button
           disabled={!prevPage}
-          onClick={() => fetchCasts(prevPage, search)}
+          onClick={() => setPage(prevPage)}
           className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40"
         >
           ⬅ Prev
         </button>
 
         <span className="text-lg font-semibold text-red-400">
-          Page {page}
+          Page {page} / {totalPages}
         </span>
 
         <button
           disabled={!nextPage}
-          onClick={() => fetchCasts(nextPage, search)}
+          onClick={() => setPage(nextPage)}
           className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40"
         >
           Next ➡

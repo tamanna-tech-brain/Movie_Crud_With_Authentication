@@ -1,33 +1,22 @@
 import { useEffect, useState } from "react";
 import { getHistory } from "../api/api";
-import { Link } from "react-router-dom"; // ✅ FIX (IMPORTANT)
+import { Link } from "react-router-dom";
 import noImage from "../assets/no-image.jpg";
+import { paginate } from "../utils";
 
 const History = () => {
-  const [history, setHistory] = useState([]);
+  const [allHistory, setAllHistory] = useState([]); // full data
   const [page, setPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const limit = 2;
 
-  const userId = localStorage.getItem("userId");
-
-  const fetchHistory = async (pg = 1, searchText = "") => {
+  // ✅ Fetch ONLY ONCE
+  const fetchHistory = async () => {
     try {
       setLoading(true);
-
-      const res = await getHistory(userId, pg, searchText);
-      const data = res.data;
-
-      console.log("USER ID:", userId);
-      console.log("🔥 HISTORY RESPONSE:", data);
-
-      setHistory(data.data || []);
-      setPage(data.page);
-      setNextPage(data.nextPage);
-      setPrevPage(data.prevPage);
-
+      const res = await getHistory();
+      setAllHistory(res.data.data || []);
     } catch (err) {
       console.error("HISTORY ERROR:", err);
     } finally {
@@ -36,10 +25,23 @@ const History = () => {
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchHistory(1, search);
-    }
-  }, [search, userId]);
+    fetchHistory();
+  }, []);
+
+  // ✅ Custom search (nested field)
+  const filteredHistory = search
+    ? allHistory.filter(h =>
+        h.movieId?.title?.toLowerCase().includes(search.toLowerCase())
+      )
+    : allHistory;
+
+  // ✅ Pagination
+  const {
+    data: paginatedHistory,
+    nextPage,
+    prevPage,
+    totalPages
+  } = paginate(filteredHistory, page, limit);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6">
@@ -51,7 +53,10 @@ const History = () => {
         type="text"
         placeholder="Search history..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(1); // ✅ important
+        }}
         className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500"
       />
 
@@ -61,17 +66,16 @@ const History = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-          {history.length === 0 ? (
+          {paginatedHistory.length === 0 ? (
             <p className="text-gray-400 text-center col-span-full">
               No history found
             </p>
           ) : (
-            history.map((h) => (
+            paginatedHistory.map((h) => (
               <div
                 key={h._id}
                 className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition duration-300"
               >
-
                 {/* IMAGE */}
                 <img
                   src={h.movieId?.poster || noImage}
@@ -89,7 +93,7 @@ const History = () => {
                     Watched 🎬
                   </p>
 
-                  {/* VIEW BUTTON */}
+                  {/* VIEW */}
                   <Link
                     to={`/movie/${h.movieId?._id}`}
                     className="inline-block mt-2 text-sm bg-red-600 px-3 py-1 rounded hover:bg-red-700"
@@ -97,30 +101,31 @@ const History = () => {
                     View
                   </Link>
                 </div>
-
               </div>
             ))
           )}
 
         </div>
       )}
+
+      {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-8">
 
         <button
           disabled={!prevPage}
-          onClick={() => fetchHistory(prevPage, search)}
+          onClick={() => setPage(prevPage)}
           className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40"
         >
           ⬅ Prev
         </button>
 
         <span className="text-lg font-semibold text-red-400">
-          Page {page}
+          Page {page} / {totalPages}
         </span>
 
         <button
           disabled={!nextPage}
-          onClick={() => fetchHistory(nextPage, search)}
+          onClick={() => setPage(nextPage)}
           className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40"
         >
           Next ➡

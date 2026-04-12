@@ -18,11 +18,9 @@ export async function register(req, res) {
       email:normalizedEmail,
       password: hashedPassword
     });
-    let accessToken = jwt.sign({
-    id: user._id,
-    }, process.env.JWT_SECRET,
+    let accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET,
     {
-    expiresIn: "15m"
+    expiresIn: "1d"
     }
 );
     res.cookie("accessToken", accessToken , {
@@ -59,7 +57,7 @@ export async function login(req, res) {
     id: user._id,
     }, process.env.JWT_SECRET ,
     {
-    expiresIn: "15m"
+    expiresIn: "1d"
     }
 )
     res.cookie("accessToken", accessToken , {

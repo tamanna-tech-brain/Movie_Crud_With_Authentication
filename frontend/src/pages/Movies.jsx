@@ -1,45 +1,41 @@
 import { useEffect, useState } from "react";
 import {
   getMovies,
-  getMoviesByCategory,
   watchMovie,
   downloadMovie,
   deleteMovie
 } from "../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import noImage from "../assets/no-image.jpg";
+import { paginate } from "../utils";
 
 const Movies = () => {
-  const [movies, setMovies] = useState([]);
+  const [allMovies, setAllMovies] = useState([]); // full data
+  const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const limit = 2;
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const userId = localStorage.getItem("userId");
 
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
 
-  const fetchMovies = async (pg = 1, searchText = "") => {
+  // ✅ Fetch ONLY ONCE
+  const fetchMovies = async () => {
     try {
       setLoading(true);
 
       let res;
       if (categoryId) {
-        res = await getMoviesByCategory(categoryId, pg, searchText);
+        res = await getMoviesByCategory(categoryId); // ❗ no page/search
       } else {
-        res = await getMovies(pg, searchText);
+        res = await getMovies();
       }
 
-      const data = res.data;
-
-      setMovies(data.data || []);
-      setPage(pg);
-      setHasMore(data.data && data.data.length > 0);
+      setAllMovies(res.data.data || []);
 
     } catch (err) {
       console.log(err);
@@ -49,55 +45,59 @@ const Movies = () => {
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchMovies(1, "");
+      fetchMovies();
+  }, [categoryId]);
+
+  // ✅ Search (title)
+  const filteredMovies = searchText
+    ? allMovies.filter(m =>
+        m.title?.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : allMovies;
+
+  // ✅ Pagination
+  const {
+    data: paginatedMovies,
+    nextPage,
+    prevPage,
+    totalPages
+  } = paginate(filteredMovies, page, limit);
+
+  // 🎬 Watch
+  const handleWatch = async (movieId) => {
+    try {
+      const res = await watchMovie(movieId);
+      alert(res.data.message || "Watched successfully 🎬");
+    } catch (err) {
+      alert(err.response?.data?.message || "Watch failed");
     }
-  }, [categoryId, userId]);
-
- const handleWatch = async (movieId) => {
-  try {
-    console.log("CLICKED WATCH:", movieId);
-
-    const res = await watchMovie(movieId, { userId });
-
-    console.log("FULL RESPONSE:", res);
-    console.log("WATCH SUCCESS DATA:", res.data);
-
-    alert(res.data.message || "Watched successfully 🎬");
-
-  } catch (err) {
-    console.error("WATCH ERROR FULL:", err);
-    console.error("WATCH ERROR RESPONSE:", err.response?.data);
-
-    alert(err.response?.data?.message || "Watch failed");
-  }
-};
-
-const handleDownload = async (movieId) => {
-  try {
-    const res = await downloadMovie(movieId, { userId });
-
-    alert(res.data.message);
-
-  } catch (err) {
-    const msg = err.response?.data?.message;
-
-    if (msg?.includes("duplicate")) {
-      alert("Already downloaded ✅");
-    } else {
-      alert(msg || "Download failed");
-    }
-
-    console.error("DOWNLOAD ERROR:", err.response?.data);
-  }
-};
-
-  const handleDelete = async (id) => {
-    await deleteMovie(id);
-    fetchMovies(page, search);
   };
 
-  if (!userId) {
+  // ⬇ Download
+  const handleDownload = async (movieId) => {
+    try {
+      const res = await downloadMovie(movieId);
+      alert(res.data.message);
+    } catch (err) {
+      const msg = err.response?.data?.message;
+      if (msg?.includes("duplicate")) {
+        alert("Already downloaded ✅");
+      } else {
+        alert(msg || "Download failed");
+      }
+    }
+  };
+
+  // 🗑 Delete
+  const handleDelete = async (id) => {
+    await deleteMovie(id);
+    fetchMovies();
+  };
+
+  // 🔐 Not logged in
+ const token = localStorage.getItem("token");
+
+if (!token) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-900 to-black text-white">
         <h1 className="text-4xl font-bold mb-6">🎬 Movie App</h1>
@@ -108,14 +108,14 @@ const handleDownload = async (movieId) => {
         <div className="flex gap-6">
           <button
             onClick={() => navigate("/login")}
-            className="px-6 py-3 bg-red-600 rounded-lg hover:bg-red-700 transition"
+            className="px-6 py-3 bg-red-600 rounded-lg hover:bg-red-700"
           >
             Login
           </button>
 
           <button
             onClick={() => navigate("/register")}
-            className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
+            className="px-6 py-3 bg-gray-700 rounded-lg hover:bg-gray-600"
           >
             Register
           </button>
@@ -132,10 +132,9 @@ const handleDownload = async (movieId) => {
         <h2 className="text-2xl font-bold">🎬 Movies</h2>
 
         <div className="flex gap-3">
-          {/* ✅ CREATE MOVIE (FOR ALL USERS) */}
           <button
             onClick={() => navigate("/movie/create")}
-            className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition"
+            className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700"
           >
             ➕ Create Movie
           </button>
@@ -145,7 +144,7 @@ const handleDownload = async (movieId) => {
               localStorage.clear();
               navigate("/");
             }}
-            className="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition"
+            className="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700"
           >
             Logout
           </button>
@@ -155,10 +154,10 @@ const handleDownload = async (movieId) => {
       {/* SEARCH */}
       <input
         placeholder="🔍 Search movies..."
-        value={search}
+        value={searchText}
         onChange={(e) => {
-          setSearch(e.target.value);
-          fetchMovies(1, e.target.value);
+          setSearchText(e.target.value);
+          setPage(1); // ✅ important
         }}
         className="w-full mb-6 p-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
       />
@@ -168,10 +167,10 @@ const handleDownload = async (movieId) => {
         <h2 className="text-center">Loading...</h2>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {movies.map((m) => (
+          {paginatedMovies.map((m) => (
             <div
               key={m._id}
-              className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition duration-300"
+              className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition"
             >
               <img
                 src={m.poster || noImage}
@@ -187,8 +186,8 @@ const handleDownload = async (movieId) => {
                   <button onClick={() => handleDownload(m._id)}>⬇</button>
                   <button onClick={() => handleDelete(m._id)}>🗑</button>
                   <button onClick={() => navigate(`/movie/update/${m._id}`)}>
-    ✏️
-  </button>
+                    ✏️
+                  </button>
                 </div>
               </div>
             </div>
@@ -196,27 +195,35 @@ const handleDownload = async (movieId) => {
         </div>
       )}
 
+      {/* EMPTY */}
+      {!loading && paginatedMovies.length === 0 && (
+        <p className="text-center mt-10 text-gray-400">
+          No movies found
+        </p>
+      )}
+
       {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-8">
         <button
-          disabled={page === 1}
-          onClick={() => fetchMovies(page - 1, search)}
+          disabled={!prevPage}
+          onClick={() => setPage(prevPage)}
           className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
           ⬅ Prev
         </button>
 
-        <span>Page {page}</span>
+        <span>
+          Page {page} / {totalPages}
+        </span>
 
         <button
-          disabled={!hasMore}
-          onClick={() => fetchMovies(page + 1, search)}
+          disabled={!nextPage}
+          onClick={() => setPage(nextPage)}
           className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
           Next ➡
         </button>
       </div>
-      
     </div>
   );
 };

@@ -4,11 +4,11 @@ import downloadmodel from "../models/downloads.js";
 export const downloadMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
-    const { userId } = req.body;
+    const userId = req.user.id; // ✅ FIX
 
     const newDownload = new downloadmodel({
-      userId: new mongoose.Types.ObjectId(userId),
-      movieId: new mongoose.Types.ObjectId(movieId)
+      userId,
+      movieId
     });
 
     await newDownload.save();
@@ -25,63 +25,19 @@ export const downloadMovie = async (req, res) => {
 
 export const getDownloads = async (req, res) => {
   try {
-    const { userId } = req.params;
-    let { page = 1, limit = 2, search = "" } = req.query;
+    const userId = req.user.id; // ✅ IMPORTANT
 
-    page = Number(page);
-    limit = Number(limit);
-    const skip = (page - 1) * limit;
+    const downloads = await downloadmodel
+      .find({ userId })
+      .populate("movieId");
 
-    const pipeline = [
-      {
-        $match: {
-          userId: new mongoose.Types.ObjectId(userId)
-        }
-      },
-      {
-        $lookup: {
-          from: "movies",
-          localField: "movieId",
-          foreignField: "_id",
-          as: "movieId" // 
-        }
-      },
-      { $unwind: "$movieId" }
-    ];
-
-    if (search) {
-      pipeline.push({
-        $match: {
-          "movieId.title": { $regex: search, $options: "i" }
-        }
-      });
-    }
-
-    const totalData = await downloadmodel.aggregate([
-      ...pipeline,
-      { $count: "total" }
-    ]);
-
-    const total = totalData[0]?.total || 0;
-
-    const data = await downloadmodel.aggregate([
-      ...pipeline,
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: limit }
-    ]);
-
-    res.json({
+    res.status(200).json({
       success: true,
-      data,
-      page,
-      totalPages: Math.ceil(total / limit),
-      nextPage: page < Math.ceil(total / limit) ? page + 1 : null,
-      prevPage: page > 1 ? page - 1 : null,
-      total
+      data: downloads
     });
 
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+    console.log("DOWNLOAD ERROR:", error);
+    res.status(500).json({ message: error.message });
   }
 };
