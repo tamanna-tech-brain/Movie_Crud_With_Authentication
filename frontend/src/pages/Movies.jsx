@@ -58,22 +58,22 @@ const Movies = () => {
     }
   };
 
-  // ⬇ Download
   const handleDownload = async (movieId) => {
-    try {
-      const res = await downloadMovie(movieId);
-      alert(res.data.message);
-    } catch (err) {
-      const msg = err.response?.data?.message;
-      if (msg?.includes("duplicate")) {
-        alert("Already downloaded");
-      } else {
-        alert(msg || "Download failed");
-      }
-    }
-  };
+  try {
+    const res = await downloadMovie(movieId);
+    alert(res.data.message);
+  } catch (err) {
+    const msg = err.message || err.response?.data?.message;
 
-  // 🗑 Delete
+    if (msg?.toLowerCase().includes("already")) {
+      alert("Already downloaded ");
+    } else {
+      alert(msg || "Download failed ❌");
+    }
+  }
+};
+
+  
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete?")) return;
 

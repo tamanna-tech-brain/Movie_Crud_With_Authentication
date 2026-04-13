@@ -36,6 +36,8 @@ const Downloads = () => {
     fetchDownloads();
   }, [page, search]);
 
+  
+
   return (
     <div className="p-6 text-white">
 
