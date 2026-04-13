@@ -36,159 +36,33 @@ function App() {
 
       <Routes>
 
-        {/* ✅ MAIN (PROTECTED) */}
-        <Route
-          path="/"
-          element={
-            <AuthGuard>
-              <Movies />
-            </AuthGuard>
-          }
-        />
-
-        <Route
-          path="/movies"
-          element={
-            <AuthGuard>
-              <Movies />
-            </AuthGuard>
-          }
-        />
-
-        {/* ✅ AUTH (PUBLIC) */}
-        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        {/* ✅ USER (PROTECTED) */}
-        <Route
-          path="/profile/:id"
-          element={
-            <AuthGuard>
-              <Profile />
-            </AuthGuard>
-          }
-        />
+        <Route element={<AuthGuard />}>
 
-        {/* ✅ CAST (PROTECTED) */}
-        <Route
-          path="/cast"
-          element={
-            <AuthGuard>
-              <Cast />
-            </AuthGuard>
-          }
-        />
+          <Route path="/" element={<Movies />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/profile/:id" element={<Profile />} />
 
-        <Route
-          path="/cast/create"
-          element={
-            <AuthGuard>
-              <CreateCast />
-            </AuthGuard>
-          }
-        />
+          <Route path="/cast" element={<Cast />} />
+          <Route path="/cast/create" element={<CreateCast />} />
+          <Route path="/cast/update/:id" element={<UpdateCast />} />
+          <Route path="/cast/:id" element={<CastDetails />} />
 
-        <Route
-          path="/cast/update/:id"
-          element={
-            <AuthGuard>
-              <UpdateCast />
-            </AuthGuard>
-          }
-        />
+          <Route path="/category" element={<Category />} />
+          <Route path="/category/create" element={<CreateCategory />} />
+          <Route path="/category/update/:id" element={<UpdateCategory />} />
+          <Route path="/category/:id" element={<CategoryDetails />} />
 
-        <Route
-          path="/cast/:id"
-          element={
-            <AuthGuard>
-              <CastDetails />
-            </AuthGuard>
-          }
-        />
+          <Route path="/movie/create" element={<CreateMovie />} />
+          <Route path="/movie/update/:id" element={<UpdateMovie />} />
+          <Route path="/movie/:id" element={<MovieDetails />} />
 
-        {/* ✅ CATEGORY (PROTECTED) */}
-        <Route
-          path="/category"
-          element={
-            <AuthGuard>
-              <Category />
-            </AuthGuard>
-          }
-        />
+          <Route path="/history" element={<History />} />
+          <Route path="/downloads" element={<Download />} />
 
-        <Route
-          path="/category/create"
-          element={
-            <AuthGuard>
-              <CreateCategory />
-            </AuthGuard>
-          }
-        />
-
-        <Route
-          path="/category/update/:id"
-          element={
-            <AuthGuard>
-              <UpdateCategory />
-            </AuthGuard>
-          }
-        />
-
-        <Route
-          path="/category/:id"
-          element={
-            <AuthGuard>
-              <CategoryDetails />
-            </AuthGuard>
-          }
-        />
-
-        {/* ✅ MOVIES (PROTECTED) */}
-        <Route
-          path="/movie/create"
-          element={
-            <AuthGuard>
-              <CreateMovie />
-            </AuthGuard>
-          }
-        />
-
-        <Route
-          path="/movie/update/:id"
-          element={
-            <AuthGuard>
-              <UpdateMovie />
-            </AuthGuard>
-          }
-        />
-
-        <Route
-          path="/movie/:id"
-          element={
-            <AuthGuard>
-              <MovieDetails />
-            </AuthGuard>
-          }
-        />
-
-        {/* ✅ EXTRA (PROTECTED) */}
-        <Route
-          path="/history"
-          element={
-            <AuthGuard>
-              <History />
-            </AuthGuard>
-          }
-        />
-
-        <Route
-          path="/downloads"
-          element={
-            <AuthGuard>
-              <Download />
-            </AuthGuard>
-          }
-        />
+        </Route>
 
       </Routes>
     </>

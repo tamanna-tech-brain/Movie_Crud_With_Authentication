@@ -1,59 +1,67 @@
 import { useEffect, useState } from "react";
 import { getCasts, deleteCast } from "../api/api";
-import { Link } from "react-router-dom";
-import { paginate, searchFilter } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 const Cast = () => {
-  const [allCasts, setAllCasts] = useState([]); // full data
+  const [casts, setCasts] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const limit = 2;
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch ONLY ONCE (no pagination here)
+  const limit = 2;
+  const navigate = useNavigate();
+
   const fetchCasts = async () => {
     try {
-      const res = await getCasts();
-      setAllCasts(res.data.data || []);
+      setLoading(true);
+
+      const res = await getCasts({
+        page,
+        limit,
+        search
+      });
+
+      setCasts(res.data.data);
+      setTotalPages(res.data.pagination.totalPages);
+
     } catch (err) {
+      console.log(err);
       alert("Error fetching cast");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchCasts();
-  }, []);
+  }, [page, search]);
 
-  const filteredCasts = searchFilter(allCasts, search, "name");
-
-  const {
-    data: paginatedCasts,
-    nextPage,
-    prevPage,
-    totalPages
-  } = paginate(filteredCasts, page, limit);
-
+  // 🗑 DELETE
   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete?")) return;
+
     try {
       await deleteCast(id);
-      fetchCasts(); // reload data
+      fetchCasts();
     } catch {
       alert("Delete failed");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6">
 
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">🎭 Cast</h2>
+        <h2 className="text-2xl font-bold">Cast</h2>
 
-        <Link
-          to="/cast/create"
-          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold"
+        <button
+          onClick={() => navigate("/cast/create")}
+          className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700"
         >
-          + Add Cast
-        </Link>
+          Add Cast
+        </button>
       </div>
 
       {/* SEARCH */}
@@ -63,82 +71,88 @@ const Cast = () => {
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
-          setPage(1); 
+          setPage(1);
         }}
-        className="w-full mb-6 p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
+        className="w-full mb-6 p-3 bg-gray-800 rounded-lg border border-gray-700 outline-none"
       />
 
       {/* GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {paginatedCasts.length === 0 ? (
-          <p className="text-center col-span-full text-gray-400">
-            No cast found
-          </p>
-        ) : (
-          paginatedCasts.map((cast) => (
+      {loading ? (
+        <h2 className="text-center">Loading...</h2>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {casts.map((cast) => (
             <div
               key={cast._id}
-              className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition duration-300"
+              className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition"
             >
-              {/* IMAGE */}
-              <div className="relative group">
-                <img
-                  src={`https://source.unsplash.com/400x300/?actor,${cast.name}`}
-                  alt={cast.name}
-                  className="w-full h-56 object-cover"
-                />
+              <img
+                src={`https://source.unsplash.com/400x300/?actor,${cast.name}`}
+                alt={cast.name}
+                className="w-full h-44 object-cover"
+              />
 
-                {/* DELETE */}
-                <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+              <div className="p-3">
+                <h4 className="font-semibold truncate">{cast.name}</h4>
+
+                {/* BUTTONS */}
+                <div className="grid grid-cols-2 gap-2 mt-3">
+
+                  <button
+                    onClick={() => navigate(`/cast/${cast._id}`)}
+                    className="bg-blue-600 hover:bg-blue-700 text-sm py-1 rounded"
+                  >
+                    View
+                  </button>
+
+                  <button
+                    onClick={() => navigate(`/cast/update/${cast._id}`)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-sm py-1 rounded"
+                  >
+                    Edit
+                  </button>
+
                   <button
                     onClick={() => handleDelete(cast._id)}
-                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
+                    className="col-span-2 bg-red-600 hover:bg-red-700 text-sm py-1 rounded"
                   >
                     Delete
                   </button>
-                </div>
-              </div>
 
-              {/* INFO */}
-              <div className="p-4">
-                <h3 className="text-lg font-semibold truncate">
-                  {cast.name}
-                </h3>
-
-                <div className="flex justify-between mt-3 text-sm">
-                  <Link className="text-blue-400 hover:underline" to={`/cast/${cast._id}`}>
-                    View
-                  </Link>
-                  <Link className="text-yellow-400 hover:underline" to={`/cast/update/${cast._id}`}>
-                    Edit
-                  </Link>
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {/* EMPTY */}
+      {!loading && casts.length === 0 && (
+        <p className="text-center mt-10 text-gray-400">
+          No cast found
+        </p>
+      )}
 
       {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-8">
         <button
-          disabled={!prevPage}
-          onClick={() => setPage(prevPage)}
-          className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40"
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
-          ⬅ Prev
+          Prev
         </button>
 
-        <span className="text-lg font-semibold text-red-400">
+        <span>
           Page {page} / {totalPages}
         </span>
 
         <button
-          disabled={!nextPage}
-          onClick={() => setPage(nextPage)}
-          className="px-5 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-40"
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+          className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
-          Next ➡
+          Next
         </button>
       </div>
 

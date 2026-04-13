@@ -1,3 +1,5 @@
+import { getPagination } from "../utils/pagination.js";
+import { getSearchMatch } from "../utils/search.js";
 import categorymodel from "../models/category.js"
 
 export async function createCategory(req, res) {
@@ -27,21 +29,34 @@ export async function createCategory(req, res) {
     });
 }
 }
+
 export async function getCategory(req, res) {
   try {
-    const categories = await categorymodel.find();
+    const { page, limit, skip } = getPagination(req.query);
+    const { search = "" } = req.query;
 
-    res.status(200).json({
+    const matchStage = getSearchMatch(search, "name");
+
+    const categories = await categorymodel
+      .find(matchStage)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await categorymodel.countDocuments(matchStage);
+
+    res.json({
       success: true,
-      data: categories
+      data: categories,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     });
 
-  } catch (error) {
-    console.error("CATEGORY ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 }
 export async function getCategoryById(req, res) {

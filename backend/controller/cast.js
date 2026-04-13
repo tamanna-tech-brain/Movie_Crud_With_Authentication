@@ -1,4 +1,6 @@
 import castmodel from "../models/cast.js"
+import { getPagination } from "../utils/pagination.js";
+import { getSearchMatch } from "../utils/search.js";
 
 export async function createCast(req, res) {
   try {
@@ -22,21 +24,34 @@ export async function createCast(req, res) {
     });
   }
 }
+
 export async function getCasts(req, res) {
   try {
-    const casts = await castmodel.find();
+    const { page, limit, skip } = getPagination(req.query);
+    const { search = "" } = req.query;
 
-    return res.status(200).json({
+    const matchStage = getSearchMatch(search, "name");
+
+    const casts = await castmodel
+      .find(matchStage)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await castmodel.countDocuments(matchStage);
+
+    res.json({
       success: true,
-      data: casts
+      data: casts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     });
 
-  } catch (error) {
-    console.log("CAST ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 }
 

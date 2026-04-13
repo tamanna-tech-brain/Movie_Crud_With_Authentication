@@ -1,21 +1,22 @@
 import mongoose from "mongoose";
 import downloadmodel from "../models/downloads.js";
+import { getPagination } from "../utils/pagination.js";
+import { getSearchMatch } from "../utils/search.js";
 
 export const downloadMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
-    const userId = req.user.id; 
+    const userId = req.user.id;
 
-    const newDownload = new downloadmodel({
+    const newDownload = await downloadmodel.create({
       userId,
       movieId
     });
 
-    await newDownload.save();
-
     res.json({
       success: true,
-      message: "Downloaded successfully"
+      message: "Downloaded successfully",
+      data: newDownload
     });
 
   } catch (err) {
@@ -23,17 +24,50 @@ export const downloadMovie = async (req, res) => {
   }
 };
 
+
 export const getDownloads = async (req, res) => {
   try {
-    const userId = req.user.id; 
+    const { page, limit, skip } = getPagination(req.query);
+    const { search = "" } = req.query;
+    const userId = req.user.id;
 
-    const downloads = await downloadmodel
-      .find({ userId })
-      .populate("movieId");
+    const searchMatch = getSearchMatch(search, "movieId.title");
 
-    res.status(200).json({
+    const downloads = await downloadmodel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId)
+        }
+      },
+
+      {
+        $lookup: {
+          from: "movies",
+          localField: "movieId",
+          foreignField: "_id",
+          as: "movieId"
+        }
+      },
+
+      { $unwind: "$movieId" },
+
+      ...(searchMatch ? [{ $match: searchMatch }] : []),
+
+      { $skip: skip },
+      { $limit: limit }
+    ]);
+
+    const total = await downloadmodel.countDocuments({ userId });
+
+    res.json({
       success: true,
-      data: downloads
+      data: downloads,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     });
 
   } catch (error) {

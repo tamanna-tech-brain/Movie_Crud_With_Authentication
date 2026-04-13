@@ -7,18 +7,18 @@ import {
 } from "../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import noImage from "../assets/no-image.jpg";
-import { paginate } from "../utils";
 
 const Movies = () => {
-  const [allMovies, setAllMovies] = useState([]); // full data
+  const [movies, setMovies] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);
-  const limit = 2;
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const limit = 2;
 
   const location = useLocation();
   const navigate = useNavigate();
-
 
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
@@ -27,44 +27,32 @@ const Movies = () => {
     try {
       setLoading(true);
 
-      let res;
-      if (categoryId) {
-        res = await getMoviesByCategory(categoryId); // ❗ no page/search
-      } else {
-        res = await getMovies();
-      }
+      const res = await getMovies({
+        page,
+        limit,
+        search: searchText,
+        categoryId
+      });
 
-      setAllMovies(res.data.data || []);
+      setMovies(res.data.data);
+      setTotalPages(res.data.pagination.totalPages);
 
     } catch (err) {
-      console.log(err);
+      console.log("FETCH ERROR:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-      fetchMovies();
-  }, [categoryId]);
-
-  const filteredMovies = searchText
-    ? allMovies.filter(m =>
-        m.title?.toLowerCase().includes(searchText.toLowerCase())
-      )
-    : allMovies;
-
-  const {
-    data: paginatedMovies,
-    nextPage,
-    prevPage,
-    totalPages
-  } = paginate(filteredMovies, page, limit);
+    fetchMovies();
+  }, [page, searchText, categoryId]);
 
   // 🎬 Watch
   const handleWatch = async (movieId) => {
     try {
       const res = await watchMovie(movieId);
-      alert(res.data.message || "Watched successfully 🎬");
+      alert(res.data.message || "Watched successfully");
     } catch (err) {
       alert(err.response?.data?.message || "Watch failed");
     }
@@ -78,7 +66,7 @@ const Movies = () => {
     } catch (err) {
       const msg = err.response?.data?.message;
       if (msg?.includes("duplicate")) {
-        alert("Already downloaded ✅");
+        alert("Already downloaded");
       } else {
         alert(msg || "Download failed");
       }
@@ -87,17 +75,18 @@ const Movies = () => {
 
   // 🗑 Delete
   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete?")) return;
+
     await deleteMovie(id);
     fetchMovies();
   };
 
-  // 🔐 Not logged in
- const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-if (!token) {
+  if (!token) {
     return (
-      <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-900 to-black text-white">
-        <h1 className="text-4xl font-bold mb-6">🎬 Movie App</h1>
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-900 text-white">
+        <h1 className="text-4xl font-bold mb-6">Movie App</h1>
         <p className="text-gray-400 mb-8">
           Please login or register to continue
         </p>
@@ -126,14 +115,14 @@ if (!token) {
 
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">🎬 Movies</h2>
+        <h2 className="text-2xl font-bold">Movies</h2>
 
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/movie/create")}
             className="bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700"
           >
-            ➕ Create Movie
+            Create
           </button>
 
           <button
@@ -150,13 +139,13 @@ if (!token) {
 
       {/* SEARCH */}
       <input
-        placeholder="🔍 Search movies..."
+        placeholder="Search movies..."
         value={searchText}
         onChange={(e) => {
           setSearchText(e.target.value);
-          setPage(1); // ✅ important
+          setPage(1);
         }}
-        className="w-full mb-6 p-3 bg-gray-800 rounded-lg border border-gray-700 focus:ring-2 focus:ring-red-500 outline-none"
+        className="w-full mb-6 p-3 bg-gray-800 rounded-lg border border-gray-700 outline-none"
       />
 
       {/* GRID */}
@@ -164,7 +153,7 @@ if (!token) {
         <h2 className="text-center">Loading...</h2>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {paginatedMovies.map((m) => (
+          {movies.map((m) => (
             <div
               key={m._id}
               className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition"
@@ -178,13 +167,37 @@ if (!token) {
               <div className="p-3">
                 <h4 className="font-semibold truncate">{m.title}</h4>
 
-                <div className="flex justify-between mt-3 text-lg">
-                  <button onClick={() => handleWatch(m._id)}>▶</button>
-                  <button onClick={() => handleDownload(m._id)}>⬇</button>
-                  <button onClick={() => handleDelete(m._id)}>🗑</button>
-                  <button onClick={() => navigate(`/movie/update/${m._id}`)}>
-                    ✏️
+                {/* BUTTONS */}
+                <div className="grid grid-cols-2 gap-2 mt-3">
+
+                  <button
+                    onClick={() => handleWatch(m._id)}
+                    className="bg-blue-600 hover:bg-blue-700 text-sm py-1 rounded"
+                  >
+                    Watch
                   </button>
+
+                  <button
+                    onClick={() => handleDownload(m._id)}
+                    className="bg-purple-600 hover:bg-purple-700 text-sm py-1 rounded"
+                  >
+                    Download
+                  </button>
+
+                  <button
+                    onClick={() => navigate(`/movie/update/${m._id}`)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-sm py-1 rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(m._id)}
+                    className="bg-red-600 hover:bg-red-700 text-sm py-1 rounded"
+                  >
+                    Delete
+                  </button>
+
                 </div>
               </div>
             </div>
@@ -193,7 +206,7 @@ if (!token) {
       )}
 
       {/* EMPTY */}
-      {!loading && paginatedMovies.length === 0 && (
+      {!loading && movies.length === 0 && (
         <p className="text-center mt-10 text-gray-400">
           No movies found
         </p>
@@ -202,11 +215,11 @@ if (!token) {
       {/* PAGINATION */}
       <div className="flex justify-center items-center gap-4 mt-8">
         <button
-          disabled={!prevPage}
-          onClick={() => setPage(prevPage)}
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
           className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
-          ⬅ Prev
+          Prev
         </button>
 
         <span>
@@ -214,13 +227,14 @@ if (!token) {
         </span>
 
         <button
-          disabled={!nextPage}
-          onClick={() => setPage(nextPage)}
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
           className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
         >
-          Next ➡
+          Next
         </button>
       </div>
+
     </div>
   );
 };

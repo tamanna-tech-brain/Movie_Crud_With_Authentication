@@ -1,3 +1,5 @@
+import { getPagination } from "../utils/pagination.js";
+import { getSearchMatch } from "../utils/search.js";
 import moviemodel from "../models/movie.js";
 
 export async function createMovie(req, res) {
@@ -32,46 +34,44 @@ export async function createMovie(req, res) {
 
 export async function getMovies(req, res) {
   try {
+    const { page, limit, skip } = getPagination(req.query);
+    const { search = "" } = req.query;
+
+    const matchStage = getSearchMatch(search, "title");
+
     const movies = await moviemodel.aggregate([
-      
+      { $match: matchStage },
+
       {
         $lookup: {
-          from: "categories", // collection name
+          from: "categories",
           localField: "categoryId",
           foreignField: "_id",
           as: "category"
         }
       },
 
-      {
-        $lookup: {
-          from: "casts",
-          localField: "cast",
-          foreignField: "_id",
-          as: "cast"
-        }
-      },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
 
-      {
-        $unwind: {
-          path: "$category",
-          preserveNullAndEmptyArrays: true
-        }
-      }
-
+      { $skip: skip },
+      { $limit: limit }
     ]);
 
-    res.status(200).json({
+    const total = await moviemodel.countDocuments(matchStage);
+
+    res.json({
       success: true,
-      data: movies
+      data: movies,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     });
 
-  } catch (error) {
-    console.error("MOVIE ERROR:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 }
 

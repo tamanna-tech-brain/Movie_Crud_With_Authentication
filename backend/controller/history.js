@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import historymodel from "../models/history.js";
+import { getPagination } from "../utils/pagination.js";
+import { getSearchMatch } from "../utils/search.js";
 
 export const watchMovie = async (req, res) => {
   try {
     const { movieId } = req.params;
-    const userId = req.user.id; // ✅ FIRST define
-
-    console.log("WATCH API HIT:", movieId, userId);
+    const userId = req.user.id;
 
     const history = await historymodel.create({
       userId,
@@ -27,13 +27,48 @@ export const watchMovie = async (req, res) => {
 
 export const getHistory = async (req, res) => {
   try {
-    const userId = req.user.id; // ✅ IMPORTANT
+    const { page, limit, skip } = getPagination(req.query);
+    const { search = "" } = req.query;
+    const userId = req.user.id;
 
-    const history = await historymodel
-      .find({ userId })
-      .populate("movieId");
+    const searchMatch = getSearchMatch(search, "movieId.title");
 
-    res.json({ success: true, data: history });
+    const history = await historymodel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId)
+        }
+      },
+
+      {
+        $lookup: {
+          from: "movies",
+          localField: "movieId",
+          foreignField: "_id",
+          as: "movieId"
+        }
+      },
+
+      { $unwind: "$movieId" },
+
+      ...(searchMatch ? [{ $match: searchMatch }] : []),
+
+      { $skip: skip },
+      { $limit: limit }
+    ]);
+
+    const total = await historymodel.countDocuments({ userId });
+
+    res.json({
+      success: true,
+      data: history,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
 
   } catch (err) {
     console.log("HISTORY ERROR:", err);

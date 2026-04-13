@@ -1,14 +1,19 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
-const AuthGuard = ({ children }) => {
-  const userId = localStorage.getItem("userId");
+const AuthGuard = ({ roleRequired }) => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+  const location = useLocation();
 
-  if (!userId) {
-    return <Navigate to="/login" replace />;
+  if (!token) {
+    return <Navigate to="/login" state={{ from: location }} />;
   }
 
-  // ✅ Logged in
-  return children;
+  if (roleRequired && role !== roleRequired) {
+    return <Navigate to="/" />;
+  }
+
+  return <Outlet />;
 };
 
 export default AuthGuard;
