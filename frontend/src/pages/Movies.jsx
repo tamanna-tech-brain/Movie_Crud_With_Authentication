@@ -48,7 +48,6 @@ const Movies = () => {
     fetchMovies();
   }, [page, searchText, categoryId]);
 
-  // 🎬 Watch
   const handleWatch = async (movieId) => {
     try {
       const res = await watchMovie(movieId);
@@ -57,21 +56,30 @@ const Movies = () => {
       alert(err.response?.data?.message || "Watch failed");
     }
   };
-
+    
   const handleDownload = async (movieId) => {
   try {
     const res = await downloadMovie(movieId);
-    alert(res.data.message);
+    alert(res.data.message || "Downloaded successfully ✅");
   } catch (err) {
-    const msg = err.message || err.response?.data?.message;
+    console.log("DOWNLOAD ERROR:", err);
 
-    if (msg?.toLowerCase().includes("already")) {
+    const msg =
+      err?.message ||
+      err?.response?.data?.message ||
+      "";
+
+    if (
+      msg.includes("duplicate") ||
+      msg.includes("E11000")
+    ) {
       alert("Already downloaded ");
     } else {
       alert(msg || "Download failed ❌");
     }
   }
 };
+  
 
   
   const handleDelete = async (id) => {
